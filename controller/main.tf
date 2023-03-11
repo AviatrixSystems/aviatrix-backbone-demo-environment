@@ -23,7 +23,7 @@ module "aviatrix_controller_aws" {
   key_pair_name               = aws_key_pair.avx_ctrl_key.key_name
   termination_protection      = true
   incoming_ssl_cidrs          = ["${chomp(data.http.myip.response_body)}/32"]
-  instance_type               = var.instance_type
+  instance_type               = var.controller_instance_type
   type                        = "BYOL"
   controller_launch_wait_time = "210"
   vpc_cidr                    = var.vpc_cidr
@@ -35,7 +35,7 @@ resource "aws_ebs_volume" "copilot" {
   availability_zone = "${var.aws_region}a"
   encrypted         = true
   type              = "gp2"
-  size              = 25
+  size              = 1000
 }
 
 module "aviatrix_copilot_aws" {
@@ -44,7 +44,7 @@ module "aviatrix_copilot_aws" {
   keypair               = aws_key_pair.avx_ctrl_key.key_name
   controller_public_ip  = module.aviatrix_controller_aws.public_ip
   controller_private_ip = module.aviatrix_controller_aws.private_ip
-  instance_type         = var.instance_type
+  instance_type         = var.copilot_instance_type
   use_existing_vpc      = true
   vpc_id                = module.aviatrix_controller_aws.vpc_id
   subnet_id             = module.aviatrix_controller_aws.subnet_id

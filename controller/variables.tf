@@ -28,9 +28,14 @@ variable "aws_region" {
   default     = "us-west-2"
 }
 
-variable "instance_type" {
-  description = "AWS instance size for both controller and copilot"
-  default     = "t3.xlarge"
+variable "controller_instance_type" {
+  description = "AWS instance size for controller"
+  default     = "t3.2xlarge"
+}
+
+variable "copilot_instance_type" {
+  description = "AWS instance size for  copilot"
+  default     = "t3.2xlarge"
 }
 
 variable "vpc_cidr" {
