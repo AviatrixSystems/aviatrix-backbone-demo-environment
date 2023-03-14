@@ -62,6 +62,17 @@ resource "aws_security_group_rule" "edge_sv" {
   security_group_id = data.terraform_remote_state.controller.outputs.controller_security_group_id
 }
 
+resource "aws_security_group_rule" "edge_sv_copilot" {
+  for_each          = module.edge_sv.host_vm_pip
+  type              = "ingress"
+  description       = "Allows HTTPS inbound from ${each.key}"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["${each.value.address}/32"]
+  security_group_id = data.terraform_remote_state.controller.outputs.copilot_security_group_id
+}
+
 module "edge_dc" {
   # source              = "github.com/MatthewKazmar/avxedgedemo?ref=7a0f882"
   source              = "github.com/jb-smoker/avxedgedemo"
@@ -112,9 +123,20 @@ resource "aws_security_group_rule" "edge_dc" {
   security_group_id = data.terraform_remote_state.controller.outputs.controller_security_group_id
 }
 
+resource "aws_security_group_rule" "edge_dc_copilot" {
+  for_each          = module.edge_dc.host_vm_pip
+  type              = "ingress"
+  description       = "Allows HTTPS inbound from ${each.key}"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["${each.value.address}/32"]
+  security_group_id = data.terraform_remote_state.controller.outputs.copilot_security_group_id
+}
+
 resource "null_resource" "edge_sv_config" {
   connection {
-    type        = "ssh"
+    type = "ssh"
     # need to fix hard-coded user
     user        = "johnsmoker"
     private_key = file(var.private_key_full_path)
@@ -136,7 +158,7 @@ resource "null_resource" "edge_sv_config" {
 
 resource "null_resource" "edge_dc_config" {
   connection {
-    type        = "ssh"
+    type = "ssh"
     # need to fix hard-coded user
     user        = "johnsmoker"
     private_key = file(var.private_key_full_path)

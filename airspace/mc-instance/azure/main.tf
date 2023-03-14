@@ -46,7 +46,7 @@ data "cloudinit_config" "this" {
 
   part {
     content_type = "text/x-shellscript"
-    content = templatefile("${var.workload_template_path}/traffic_gen.tpl",
+    content = templatefile("${var.workload_template_path}/${var.workload_template}",
       {
         name     = var.traffic_gen.name
         apps     = join(",", var.traffic_gen.apps)

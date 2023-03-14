@@ -148,6 +148,14 @@ locals {
       external   = local.external
       interval   = "5"
     }
+    aws_us_east_2_avx = {
+      private_ip = "10.6.2.10"
+      name       = "avx-spoke-workload"
+      apps       = setsubtract(local.workload_ips, ["10.6.2.10"])
+      sap        = local.sap_ips
+      external   = local.external
+      interval   = "5"
+    }
     azure = {
       private_ip = "10.2.2.10"
       name       = "azure-workload"
@@ -157,13 +165,12 @@ locals {
       interval   = "15"
     }
     oci = {
-      private_ip = "10.3.2.10"
-      # private_ip = "10.3.2.20"
-      name     = "oci-workload"
-      apps     = setsubtract(local.workload_ips, ["10.3.2.20"])
-      sap      = local.sap_ips
-      external = local.external
-      interval = "10"
+      private_ip = "10.3.2.20"
+      name       = "oci-workload"
+      apps       = setsubtract(local.workload_ips, ["10.3.2.20"])
+      sap        = local.sap_ips
+      external   = local.external
+      interval   = "10"
     }
     gcp = {
       private_ip = "10.4.2.10"

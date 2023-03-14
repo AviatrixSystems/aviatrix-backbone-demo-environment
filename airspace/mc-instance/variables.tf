@@ -12,3 +12,6 @@ variable "iam_instance_profile" { default = "" }
 variable "workload_template_path" {
   description = "Path to the workload templates"
 }
+variable "workload_template" {
+  description = "Workload template to execute at instance start"
+}

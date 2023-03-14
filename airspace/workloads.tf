@@ -10,6 +10,7 @@ module "aws_us_east_1_workload" {
     Environment = "Production"
   })
   workload_template_path = var.workload_template_path
+  workload_template      = "traffic_gen.tpl"
   workload_password      = var.workload_instance_password
   providers = {
     aws = aws.us-east-1
@@ -27,6 +28,25 @@ module "aws_us_east_2_workload" {
     Environment = "Production"
   })
   workload_template_path = var.workload_template_path
+  workload_template      = "traffic_gen.tpl"
+  workload_password      = var.workload_instance_password
+  providers = {
+    aws = aws.us-east-2
+  }
+}
+
+module "aws_us_east_2_avx_workload" {
+  source               = "./mc-instance"
+  vpc_id               = module.avx_spoke.vpc.vpc_id
+  subnet_id            = module.avx_spoke.vpc.private_subnets[0].subnet_id
+  cloud                = "aws"
+  traffic_gen          = local.traffic_gen.aws_us_east_2_avx
+  iam_instance_profile = aws_iam_instance_profile.accounting_ec2_role_for_ssm.name
+  common_tags = merge(var.common_tags, {
+    Environment = "Production"
+  })
+  workload_template_path = var.workload_template_path
+  workload_template      = "traffic_gen.tpl"
   workload_password      = var.workload_instance_password
   providers = {
     aws = aws.us-east-2
@@ -43,6 +63,7 @@ module "azure_workload" {
   traffic_gen            = local.traffic_gen.azure
   common_tags            = merge(var.common_tags, {})
   workload_template_path = var.workload_template_path
+  workload_template      = "traffic_gen.tpl"
   workload_password      = var.workload_instance_password
 }
 
@@ -56,6 +77,7 @@ module "gcp_us_west1_workload" {
   traffic_gen            = local.traffic_gen.gcp
   common_tags            = merge(var.common_tags, {})
   workload_template_path = var.workload_template_path
+  workload_template      = "traffic_gen.tpl"
   workload_password      = var.workload_instance_password
 }
 
@@ -63,11 +85,11 @@ module "gcp_us_west1_workload" {
 module "oci_workload" {
   source                 = "./mc-instance"
   oci_compartment_ocid   = var.oci_backbone_compartment_ocid
-  subnet_id              = oci_core_subnet.spoke_public.id
+  subnet_id              = oci_core_subnet.spoke_private.id
   cloud                  = "oci"
   traffic_gen            = local.traffic_gen.oci
   common_tags            = merge(var.common_tags, {})
   workload_template_path = var.workload_template_path
+  workload_template      = "traffic_gen.tpl"
   workload_password      = var.workload_instance_password
 }
-

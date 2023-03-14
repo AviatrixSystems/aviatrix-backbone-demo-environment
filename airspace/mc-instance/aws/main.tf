@@ -79,7 +79,7 @@ resource "aws_instance" "this" {
   key_name             = aws_key_pair.workload_key.key_name
   subnet_id            = var.subnet_id
   iam_instance_profile = var.iam_instance_profile
-  user_data = templatefile("${var.workload_template_path}/traffic_gen.tpl", {
+  user_data = templatefile("${var.workload_template_path}/${var.workload_template}", {
     name     = var.traffic_gen.name
     apps     = join(",", var.traffic_gen.apps)
     external = join(",", var.traffic_gen.external)

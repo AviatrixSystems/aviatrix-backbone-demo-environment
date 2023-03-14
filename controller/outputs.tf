@@ -18,6 +18,10 @@ output "controller_security_group_id" {
   value = module.aviatrix_controller_aws.security_group_id
 }
 
+output "copilot_security_group_id" {
+  value = tolist(module.aviatrix_copilot_aws.ec2-info[0].vpc_security_group_ids)[0]
+}
+
 output "copilot_public_ip" {
   value = module.aviatrix_copilot_aws.public_ip
 }

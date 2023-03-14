@@ -18,10 +18,18 @@ resource "google_compute_instance" "this" {
     network    = var.vpc_id
     subnetwork = var.subnet_id
     network_ip = var.traffic_gen.private_ip
+    # enable for instance troubleshooting
+    # access_config {
+    #   // Ephemeral public IP
+    # }
   }
 
-  metadata_startup_script = templatefile("${var.workload_template_path}/nginx_listener.tpl", {
+  metadata_startup_script = templatefile("${var.workload_template_path}/${var.workload_template}", {
     name     = var.traffic_gen.name
+    apps     = join(",", var.traffic_gen.apps)
+    external = join(",", var.traffic_gen.external)
+    sap      = join(",", var.traffic_gen.sap)
+    interval = var.traffic_gen.interval
     password = var.workload_password
   })
 
@@ -33,6 +41,10 @@ resource "google_compute_instance" "this" {
   metadata = {
     ssh-keys = fileexists("~/.ssh/id_rsa.pub") ? "ubuntu:${file("~/.ssh/id_rsa.pub")}" : null
   }
+}
+
+data "http" "myip" {
+  url = "http://ifconfig.me"
 }
 
 resource "google_compute_firewall" "this_ingress" {
@@ -48,7 +60,7 @@ resource "google_compute_firewall" "this_ingress" {
     protocol = "icmp"
   }
 
-  source_ranges = ["10.0.0.0/8", "172.16.0.0/16"]
+  source_ranges = ["${chomp(data.http.myip.response_body)}/32", "10.0.0.0/8", "172.16.0.0/16"]
   target_tags   = ["workload"]
 }
 

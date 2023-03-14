@@ -23,9 +23,13 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 4.52.0"
     }
+    # oci = {
+    #   source  = "oracle/oci"
+    #   version = "~> 4.110.0"
+    # }
     oci = {
-      source  = "hashicorp/oci"
-      version = "~> 4.107.0"
+      source  = "oracle/oci"
+      version = "~> 4.110.0"
     }
   }
   required_version = ">= 1.2.0"

@@ -6,6 +6,7 @@ module "aws" {
   traffic_gen            = var.traffic_gen
   vpc_id                 = var.vpc_id
   workload_template_path = var.workload_template_path
+  workload_template      = var.workload_template
   workload_password      = var.workload_password
   iam_instance_profile   = var.iam_instance_profile
 }
@@ -19,6 +20,7 @@ module "azure" {
   location               = var.location
   resource_group         = var.resource_group
   workload_template_path = var.workload_template_path
+  workload_template      = var.workload_template
   workload_password      = var.workload_password
 }
 
@@ -31,6 +33,7 @@ module "gcp" {
   vpc_id                 = var.vpc_id
   region                 = var.region
   workload_template_path = var.workload_template_path
+  workload_template      = var.workload_template
   workload_password      = var.workload_password
 }
 
@@ -42,5 +45,6 @@ module "oci" {
   subnet_id              = var.subnet_id
   traffic_gen            = var.traffic_gen
   workload_template_path = var.workload_template_path
+  workload_template      = var.workload_template
   workload_password      = var.workload_password
 }

@@ -5,6 +5,7 @@ variable "traffic_gen" {}
 variable "vpc_id" {}
 variable "workload_password" {}
 variable "workload_template_path" {}
+variable "workload_template" {}
 
 locals {
   lower_common_tags = {
