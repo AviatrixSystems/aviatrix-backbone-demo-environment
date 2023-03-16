@@ -24,7 +24,12 @@ Once the Aviatrix Controller and Copilot are deployed, this code is used to conf
 
 ### Airspace
 
-For the purpose of this demo environment, the four primary CSPs are used - AWS, Azure, GCP, and OCI. The Aviatrix Secure Cloud Networking Backbone is deployed with the Aviatrix terraform provider, while connectivity into workload VPC|VNet|VCNs is achieved with each respective CSP's terraform provider. This has been segregated into the [csp_networking.tf](/airspace/csp_networking.tf)
+For the purpose of this demo environment, the four primary CSPs are used - AWS, Azure, GCP, and OCI. The Aviatrix Secure Cloud Networking Backbone is deployed with the Aviatrix terraform provider, while connectivity into workload VPC|VNet|VCNs is achieved with each respective CSP's terraform provider. This has been segregated into separate tf files per cloud:
+
+- [csp_aws_tgw.tf](/airspace/csp_aws_tgw.tf)
+- [csp_azure_ars.tf](/airspace/csp_azure_ars.tf)
+- [csp_gcp_ncc.tf](/airspace/csp_gcp_ncc.tf)
+- [csp_oci_drg.tf](/airspace/csp_oci_drg.tf)
 
 ### Workloads
 
