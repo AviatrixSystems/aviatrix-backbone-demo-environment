@@ -8,33 +8,13 @@ resource "aws_security_group" "this" {
   })
 }
 
-resource "aws_security_group_rule" "this_http" {
+resource "aws_security_group_rule" "this_rfc1918" {
   type              = "ingress"
-  description       = "Allow local HTTP inbound"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = ["10.0.0.0/8", "172.16.0.0/16"]
-  security_group_id = aws_security_group.this.id
-}
-
-resource "aws_security_group_rule" "this_ssh" {
-  type              = "ingress"
-  description       = "Allow local ssh inbound"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  cidr_blocks       = ["10.0.0.0/8", "172.16.0.0/16"]
-  security_group_id = aws_security_group.this.id
-}
-
-resource "aws_security_group_rule" "this_icmp" {
-  type              = "ingress"
-  description       = "Allow all icmp"
+  description       = "Allow all inbound from rfc1918"
   from_port         = -1
   to_port           = -1
-  protocol          = "icmp"
-  cidr_blocks       = ["10.0.0.0/8", "172.16.0.0/16"]
+  protocol          = -1
+  cidr_blocks       = ["10.0.0.0/8", "192.168.0.0/16", "172.16.0.0/12"]
   security_group_id = aws_security_group.this.id
 }
 
@@ -72,7 +52,7 @@ resource "aws_key_pair" "workload_key" {
 }
 
 resource "aws_instance" "this" {
-  ami                  = data.aws_ami.ubuntu.id
+  ami                  = var.image == null ? data.aws_ami.ubuntu.id : var.image
   instance_type        = "t3.nano"
   ebs_optimized        = false
   monitoring           = true

@@ -11,6 +11,13 @@ resource "azurerm_network_interface" "this" {
   tags = var.common_tags
 }
 
+data "azurerm_platform_image" "this" {
+  location  = var.location
+  publisher = "Canonical"
+  offer     = "0001-com-ubuntu-server-jammy"
+  sku       = "22_04-lts-gen2"
+}
+
 resource "azurerm_linux_virtual_machine" "this" {
   name                            = var.traffic_gen.name
   location                        = var.location
@@ -20,18 +27,29 @@ resource "azurerm_linux_virtual_machine" "this" {
   admin_password                  = var.workload_password
   computer_name                   = var.traffic_gen.name
   size                            = "Standard_B1ls"
+  source_image_id                 = var.image == null ? null : var.image
   custom_data                     = data.cloudinit_config.this.rendered
   disable_password_authentication = false
   tags = merge(var.common_tags, {
     Name = var.traffic_gen.name
   })
 
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts-gen2"
-    version   = "latest"
+  dynamic "source_image_reference" {
+    for_each = var.image == null ? ["ubuntu"] : []
+
+    content {
+      publisher = "Canonical"
+      offer     = "0001-com-ubuntu-server-jammy"
+      sku       = "22_04-lts-gen2"
+      version   = "latest"
+    }
   }
+  # source_image_reference {
+  #   publisher = "Canonical"
+  #   offer     = "0001-com-ubuntu-server-jammy"
+  #   sku       = "22_04-lts-gen2"
+  #   version   = "latest"
+  # }
 
   os_disk {
     caching              = "ReadWrite"
@@ -70,42 +88,14 @@ resource "azurerm_network_interface_security_group_association" "this" {
   network_security_group_id = azurerm_network_security_group.this.id
 }
 
-resource "azurerm_network_security_rule" "this_http" {
+resource "azurerm_network_security_rule" "this_rfc_1918" {
   access                      = "Allow"
   direction                   = "Inbound"
-  name                        = "http"
+  name                        = "rfc-1918"
   priority                    = 100
-  protocol                    = "Tcp"
+  protocol                    = "*"
   source_port_range           = "*"
-  source_address_prefix       = "*"
-  destination_port_range      = "80"
-  destination_address_prefix  = "*"
-  resource_group_name         = var.resource_group
-  network_security_group_name = azurerm_network_security_group.this.name
-}
-
-resource "azurerm_network_security_rule" "this_ssh" {
-  access                      = "Allow"
-  direction                   = "Inbound"
-  name                        = "ssh"
-  priority                    = 110
-  protocol                    = "Tcp"
-  source_port_range           = "*"
-  source_address_prefix       = "*"
-  destination_port_range      = "22"
-  destination_address_prefix  = "*"
-  resource_group_name         = var.resource_group
-  network_security_group_name = azurerm_network_security_group.this.name
-}
-
-resource "azurerm_network_security_rule" "this_icmp" {
-  access                      = "Allow"
-  direction                   = "Inbound"
-  name                        = "icmp"
-  priority                    = 120
-  protocol                    = "Icmp"
-  source_port_range           = "*"
-  source_address_prefix       = "*"
+  source_address_prefixes     = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
   destination_port_range      = "*"
   destination_address_prefix  = "*"
   resource_group_name         = var.resource_group

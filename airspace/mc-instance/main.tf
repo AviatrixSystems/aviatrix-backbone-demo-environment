@@ -9,6 +9,7 @@ module "aws" {
   workload_template      = var.workload_template
   workload_password      = var.workload_password
   iam_instance_profile   = var.iam_instance_profile
+  image                  = var.image
 }
 
 module "azure" {
@@ -22,6 +23,7 @@ module "azure" {
   workload_template_path = var.workload_template_path
   workload_template      = var.workload_template
   workload_password      = var.workload_password
+  image                  = var.image
 }
 
 module "gcp" {
@@ -35,6 +37,7 @@ module "gcp" {
   workload_template_path = var.workload_template_path
   workload_template      = var.workload_template
   workload_password      = var.workload_password
+  image                  = var.image
 }
 
 module "oci" {
@@ -47,4 +50,5 @@ module "oci" {
   workload_template_path = var.workload_template_path
   workload_template      = var.workload_template
   workload_password      = var.workload_password
+  image                  = var.image
 }

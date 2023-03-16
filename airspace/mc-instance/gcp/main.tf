@@ -10,7 +10,7 @@ resource "google_compute_instance" "this" {
 
   boot_disk {
     initialize_params {
-      image = data.google_compute_image.ubuntu.self_link
+      image = var.image == null ? data.google_compute_image.ubuntu.self_link : var.image
     }
   }
 
@@ -52,15 +52,10 @@ resource "google_compute_firewall" "this_ingress" {
   network = var.vpc_id
 
   allow {
-    protocol = "tcp"
-    ports    = ["22", "80", "443", "30013", "30015", "30017", "30030", "30032", "30041"]
+    protocol = "all"
   }
 
-  allow {
-    protocol = "icmp"
-  }
-
-  source_ranges = ["${chomp(data.http.myip.response_body)}/32", "10.0.0.0/8", "172.16.0.0/16"]
+  source_ranges = ["${chomp(data.http.myip.response_body)}/32", "10.0.0.0/8", "192.168.0.0/16", "172.16.0.0/12"]
   target_tags   = ["workload"]
 }
 
