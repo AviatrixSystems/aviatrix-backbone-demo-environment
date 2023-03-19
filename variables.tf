@@ -18,6 +18,10 @@ variable "azure_backbone_subscription_id" {
   description = "Access account subscription id for the azure account"
 }
 
+variable "azure_shared_images_subscription_id" {
+  description = "Access account subscription id for the custom shared images azure account"
+}
+
 variable "azure_directory_id" {
   description = "Access account directory id for azure accounts"
 }

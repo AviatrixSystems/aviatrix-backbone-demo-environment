@@ -223,6 +223,10 @@ data "aws_instance" "copilot" {
     name   = "tag:Name"
     values = ["AviatrixCopilot"]
   }
+  filter {
+    name   = "instance-state-name"
+    values = ["running"]
+  }
 }
 
 resource "aviatrix_copilot_security_group_management_config" "demo" {

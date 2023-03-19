@@ -1,7 +1,7 @@
 locals {
   public_key = fileexists("~/.ssh/id_rsa.pub") ? "${file("~/.ssh/id_rsa.pub")}" : var.public_key
 
-  network_domains = ["Dev", "QA", "Prod", "Azure", "Edge"]
+  network_domains = ["Aws", "Landing_zone", "Edge"]
 
   transit_firenet = {
     ("aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}") = {
@@ -20,6 +20,7 @@ locals {
       firenet_iam_role_1                           = aws_iam_role.palo.name
       firenet_inspection_enabled                   = true
       firenet_keep_alive_via_lan_interface_enabled = true
+      firenet_egress_enabled                       = true
     },
     ("azure_${replace(lower(var.transit_azure_region), "/[ -]/", "_")}") = {
       transit_account                  = var.azure_backbone_account_name
@@ -102,9 +103,6 @@ locals {
     }
   }
 
-
-  sap_ips = ["10.4.2.10", "10.4.2.15", "10.4.3.10", "10.4.3.15", "10.4.4.10", "10.4.4.15"]
-
   external = [
     "aws.amazon.com",
     "stackoverflow.com",
@@ -123,20 +121,45 @@ locals {
   workload_ips = [
     "10.1.2.10",
     "10.2.2.10",
-    "10.3.2.10",
     "10.3.2.20",
     "10.4.2.10",
     "10.5.2.10",
+    "10.6.2.10",
+    "10.7.2.10",
     "10.40.251.29",
     "10.50.251.29"
   ]
 
   traffic_gen = {
+    aws_sao_paulo_temp = {
+      private_ip = "10.5.101.10"
+      name       = "aws-sau-paulo-temp"
+      apps       = setunion(setsubtract(local.workload_ips, ["10.5.2.10"]), ["10.98.2.10"])
+      sap        = []
+      external   = []
+      interval   = "15"
+    }
+    aws_sao_paulo = {
+      private_ip = "10.5.2.10"
+      name       = "aws-sau-paulo-workload"
+      apps       = setunion(setsubtract(local.workload_ips, ["10.5.2.10"]), ["10.98.2.10"])
+      sap        = []
+      external   = []
+      interval   = "15"
+    }
+    aws_landing_zone = {
+      private_ip = "10.7.2.10"
+      name       = "aws-landing-zone-workload"
+      apps       = setsubtract(local.workload_ips, ["10.7.2.10"])
+      sap        = []
+      external   = local.external
+      interval   = "15"
+    }
     aws_us_east_1 = {
       private_ip = "10.1.2.10"
       name       = "aws-us-east-1-workload"
       apps       = setsubtract(local.workload_ips, ["10.1.2.10"])
-      sap        = local.sap_ips
+      sap        = []
       external   = local.external
       interval   = "10"
     }
@@ -144,7 +167,7 @@ locals {
       private_ip = "10.5.2.10"
       name       = "aws-us-east-2-workload"
       apps       = setsubtract(local.workload_ips, ["10.5.2.10"])
-      sap        = local.sap_ips
+      sap        = []
       external   = local.external
       interval   = "5"
     }
@@ -152,7 +175,7 @@ locals {
       private_ip = "10.6.2.10"
       name       = "avx-spoke-workload"
       apps       = setsubtract(local.workload_ips, ["10.6.2.10"])
-      sap        = local.sap_ips
+      sap        = []
       external   = local.external
       interval   = "5"
     }
@@ -160,7 +183,7 @@ locals {
       private_ip = "10.2.2.10"
       name       = "azure-workload"
       apps       = setsubtract(local.workload_ips, ["10.2.2.10"])
-      sap        = local.sap_ips
+      sap        = []
       external   = local.external
       interval   = "15"
     }
@@ -168,7 +191,7 @@ locals {
       private_ip = "10.3.2.20"
       name       = "oci-workload"
       apps       = setsubtract(local.workload_ips, ["10.3.2.20"])
-      sap        = local.sap_ips
+      sap        = []
       external   = local.external
       interval   = "10"
     }
@@ -176,9 +199,23 @@ locals {
       private_ip = "10.4.2.10"
       name       = "gcp-workload"
       apps       = setsubtract(local.workload_ips, ["10.4.2.10"])
-      sap        = local.sap_ips
+      sap        = []
       external   = local.external
       interval   = "5"
+    }
+    edge_sv = {
+      name     = "edge-sv-workload"
+      apps     = setsubtract(local.workload_ips, ["10.40.251.29"])
+      sap      = []
+      external = local.external
+      interval = "10"
+    }
+    edge_dc = {
+      name     = "edge-dc-workload"
+      apps     = setsubtract(local.workload_ips, ["10.50.251.29"])
+      sap      = []
+      external = local.external
+      interval = "15"
     }
   }
 }

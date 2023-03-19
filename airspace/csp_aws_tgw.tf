@@ -160,6 +160,14 @@ resource "aws_route" "vpc_us_east_1_rfc1918n_192" {
   provider               = aws.us-east-1
 }
 
+resource "aws_route" "vpc_us_east_1_internet" {
+  for_each               = toset(module.vpc_us_east_1.private_route_table_ids)
+  route_table_id         = each.value
+  destination_cidr_block = "0.0.0.0/0"
+  transit_gateway_id     = aws_ec2_transit_gateway.us_east_1.id
+  provider               = aws.us-east-1
+}
+
 # us-east-2
 resource "aws_ec2_transit_gateway" "us_east_2" {
   description                     = "tgw us-east-2"
@@ -174,17 +182,18 @@ resource "aws_ec2_transit_gateway" "us_east_2" {
 }
 
 resource "aviatrix_transit_external_device_conn" "tgw_us_east_2" {
-  vpc_id             = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_egress_fqdn_region), "/[ -]/", "_")}"].vpc.vpc_id
-  connection_name    = "aws-tgw-us-east-2"
-  gw_name            = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_egress_fqdn_region), "/[ -]/", "_")}"].transit_gateway.gw_name
-  connection_type    = "bgp"
-  bgp_local_as_num   = "65105"
-  bgp_remote_as_num  = "64513"
-  remote_gateway_ip  = "192.168.201.1"
-  tunnel_protocol    = "GRE"
-  local_tunnel_cidr  = "169.254.101.1/29"
-  remote_tunnel_cidr = "169.254.101.2/29"
-  enable_jumbo_frame = false
+  vpc_id                      = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_egress_fqdn_region), "/[ -]/", "_")}"].vpc.vpc_id
+  connection_name             = "aws-tgw-us-east-2"
+  gw_name                     = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_egress_fqdn_region), "/[ -]/", "_")}"].transit_gateway.gw_name
+  connection_type             = "bgp"
+  manual_bgp_advertised_cidrs = ["0.0.0.0/0"]
+  bgp_local_as_num            = "65105"
+  bgp_remote_as_num           = "64513"
+  remote_gateway_ip           = "192.168.201.1"
+  tunnel_protocol             = "GRE"
+  local_tunnel_cidr           = "169.254.101.1/29"
+  remote_tunnel_cidr          = "169.254.101.2/29"
+  enable_jumbo_frame          = false
 }
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "vpc_us_east_2" {
@@ -251,6 +260,7 @@ resource "aws_ec2_transit_gateway_route_table_propagation" "us_east_2_2" {
   provider                       = aws.us-east-2
 }
 
+# TODO: The "for_each" set includes values derived from resource attributes that cannot be determined until apply, and so Terraform cannot determine
 resource "aws_route" "vpc_tgw_us_east_2" {
   for_each               = toset(module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_egress_fqdn_region), "/[ -]/", "_")}"].vpc.route_tables)
   route_table_id         = each.value
@@ -279,6 +289,14 @@ resource "aws_route" "vpc_us_east_2_rfc1918n_192" {
   for_each               = toset(concat(module.vpc_us_east_2.public_route_table_ids, module.vpc_us_east_2.private_route_table_ids))
   route_table_id         = each.value
   destination_cidr_block = "192.168.0.0/16"
+  transit_gateway_id     = aws_ec2_transit_gateway.us_east_2.id
+  provider               = aws.us-east-2
+}
+
+resource "aws_route" "vpc_us_east_2_internet" {
+  for_each               = toset(module.vpc_us_east_2.private_route_table_ids)
+  route_table_id         = each.value
+  destination_cidr_block = "0.0.0.0/0"
   transit_gateway_id     = aws_ec2_transit_gateway.us_east_2.id
   provider               = aws.us-east-2
 }

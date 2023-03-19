@@ -7,6 +7,7 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 3.43.0"
+      configuration_aliases = [azurerm.shared-images]
     }
     aws = {
       source                = "hashicorp/aws"

@@ -26,9 +26,10 @@ module "backbone" {
   workload_instance_password      = var.workload_instance_password
   common_tags                     = var.common_tags
   providers = {
-    aws.sa-east-1 = aws.sa-east-1
-    aws.us-east-1 = aws.us-east-1
-    aws.us-east-2 = aws.us-east-2
+    aws.sa-east-1         = aws.sa-east-1
+    aws.us-east-1         = aws.us-east-1
+    aws.us-east-2         = aws.us-east-2
+    azurerm.shared-images = azurerm.shared-images
   }
 }
 

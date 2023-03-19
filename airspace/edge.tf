@@ -17,7 +17,7 @@ module "edge_sv" {
   source              = "github.com/jb-smoker/avxedgedemo"
   admin_cidr          = ["${chomp(data.http.myip.response_body)}/32"]
   region              = var.edge_sv_gcp_region
-  pov_prefix          = "sv-metro"
+  pov_prefix          = "sv-metro-equinix"
   host_vm_size        = "n2-standard-2"
   host_vm_cidr        = "10.40.251.16/28"
   host_vm_asn         = 64900
@@ -25,6 +25,14 @@ module "edge_sv" {
   edge_vm_asn         = 64581
   edge_lan_cidr       = "10.40.251.0/29"
   edge_image_filename = "${path.module}/avx-edge-gateway-kvm-2022-09-23-6.8.qcow2"
+  test_vm_metadata_startup_script = templatefile("${var.workload_template_path}/traffic_gen.tpl", {
+    name     = local.traffic_gen.edge_sv.name
+    apps     = join(",", local.traffic_gen.edge_sv.apps)
+    external = join(",", local.traffic_gen.edge_sv.external)
+    sap      = join(",", local.traffic_gen.edge_sv.sap)
+    interval = local.traffic_gen.edge_sv.interval
+    password = var.workload_instance_password
+  })
   external_cidrs = [
     "10.40.1.0/28", "10.40.1.16/28", "10.40.1.32/28", "10.40.1.48/28", "10.40.1.64/28", "10.40.1.80/28", "10.40.1.96/28", "10.40.1.112/28", "10.40.1.128/28", "10.40.1.144/28", "10.40.1.160/28", "10.40.1.176/28", "10.40.1.192/28", "10.40.1.208/28", "10.40.1.224/28", "10.40.1.240/28",
     "10.40.2.0/28", "10.40.2.16/28", "10.40.2.32/28", "10.40.2.48/28", "10.40.2.64/28", "10.40.2.80/28", "10.40.2.96/28", "10.40.2.112/28", "10.40.2.128/28", "10.40.2.144/28", "10.40.2.160/28", "10.40.2.176/28", "10.40.2.192/28", "10.40.2.208/28", "10.40.2.224/28", "10.40.2.240/28",
@@ -73,12 +81,34 @@ resource "aws_security_group_rule" "edge_sv_copilot" {
   security_group_id = data.terraform_remote_state.controller.outputs.copilot_security_group_id
 }
 
+resource "aws_security_group_rule" "edge_sv_copilot_31283" {
+  for_each          = module.edge_sv.host_vm_pip
+  type              = "ingress"
+  description       = "Allows HTTPS inbound from ${each.key}"
+  from_port         = 31283
+  to_port           = 31283
+  protocol          = "udp"
+  cidr_blocks       = ["${each.value.address}/32"]
+  security_group_id = data.terraform_remote_state.controller.outputs.copilot_security_group_id
+}
+
+resource "aws_security_group_rule" "edge_sv_copilot_5000" {
+  for_each          = module.edge_sv.host_vm_pip
+  type              = "ingress"
+  description       = "Allows HTTPS inbound from ${each.key}"
+  from_port         = 5000
+  to_port           = 5000
+  protocol          = "udp"
+  cidr_blocks       = ["${each.value.address}/32"]
+  security_group_id = data.terraform_remote_state.controller.outputs.copilot_security_group_id
+}
+
 module "edge_dc" {
   # source              = "github.com/MatthewKazmar/avxedgedemo?ref=7a0f882"
   source              = "github.com/jb-smoker/avxedgedemo"
   admin_cidr          = ["${chomp(data.http.myip.response_body)}/32"]
   region              = var.edge_dc_gcp_region
-  pov_prefix          = "dc-metro"
+  pov_prefix          = "dc-metro-equinix"
   host_vm_size        = "n2-standard-2"
   host_vm_cidr        = "10.50.251.16/28"
   host_vm_asn         = 64901
@@ -86,6 +116,14 @@ module "edge_dc" {
   edge_vm_asn         = 64582
   edge_lan_cidr       = "10.50.251.0/29"
   edge_image_filename = "${path.module}/avx-edge-gateway-kvm-2022-09-23-6.8.qcow2"
+  test_vm_metadata_startup_script = templatefile("${var.workload_template_path}/traffic_gen.tpl", {
+    name     = local.traffic_gen.edge_dc.name
+    apps     = join(",", local.traffic_gen.edge_dc.apps)
+    external = join(",", local.traffic_gen.edge_dc.external)
+    sap      = join(",", local.traffic_gen.edge_dc.sap)
+    interval = local.traffic_gen.edge_dc.interval
+    password = var.workload_instance_password
+  })
   external_cidrs = [
     "10.50.1.0/28", "10.50.1.16/28", "10.50.1.32/28", "10.50.1.48/28", "10.50.1.64/28", "10.50.1.80/28", "10.50.1.96/28", "10.50.1.112/28", "10.50.1.128/28", "10.50.1.144/28", "10.50.1.160/28", "10.50.1.176/28", "10.50.1.192/28", "10.50.1.208/28", "10.50.1.224/28", "10.50.1.240/28",
     "10.50.2.0/28", "10.50.2.16/28", "10.50.2.32/28", "10.50.2.48/28", "10.50.2.64/28", "10.50.2.80/28", "10.50.2.96/28", "10.50.2.112/28", "10.50.2.128/28", "10.50.2.144/28", "10.50.2.160/28", "10.50.2.176/28", "10.50.2.192/28", "10.50.2.208/28", "10.50.2.224/28", "10.50.2.240/28",
@@ -134,46 +172,24 @@ resource "aws_security_group_rule" "edge_dc_copilot" {
   security_group_id = data.terraform_remote_state.controller.outputs.copilot_security_group_id
 }
 
-resource "null_resource" "edge_sv_config" {
-  connection {
-    type = "ssh"
-    # need to fix hard-coded user
-    user        = "johnsmoker"
-    private_key = file(var.private_key_full_path)
-    host        = module.edge_sv.test_vm_pip.address
-  }
-
-  provisioner "file" {
-    destination = "/tmp/traffic_gen.sh"
-    content = templatefile("${var.workload_template_path}/edge_traffic_gen.tpl", {
-      apps     = join(",", local.workload_ips)
-      interval = "10"
-    })
-  }
-
-  provisioner "remote-exec" {
-    inline = ["sudo bash /tmp/traffic_gen.sh"]
-  }
+resource "aws_security_group_rule" "edge_dc_copilot_31283" {
+  for_each          = module.edge_dc.host_vm_pip
+  type              = "ingress"
+  description       = "Allows HTTPS inbound from ${each.key}"
+  from_port         = 31283
+  to_port           = 31283
+  protocol          = "tcp"
+  cidr_blocks       = ["${each.value.address}/32"]
+  security_group_id = data.terraform_remote_state.controller.outputs.copilot_security_group_id
 }
 
-resource "null_resource" "edge_dc_config" {
-  connection {
-    type = "ssh"
-    # need to fix hard-coded user
-    user        = "johnsmoker"
-    private_key = file(var.private_key_full_path)
-    host        = module.edge_dc.test_vm_pip.address
-  }
-
-  provisioner "file" {
-    destination = "/tmp/traffic_gen.sh"
-    content = templatefile("${var.workload_template_path}/edge_traffic_gen.tpl", {
-      apps     = join(",", local.workload_ips)
-      interval = "10"
-    })
-  }
-
-  provisioner "remote-exec" {
-    inline = ["sudo bash /tmp/traffic_gen.sh"]
-  }
+resource "aws_security_group_rule" "edge_dc_copilot_5000" {
+  for_each          = module.edge_dc.host_vm_pip
+  type              = "ingress"
+  description       = "Allows HTTPS inbound from ${each.key}"
+  from_port         = 5000
+  to_port           = 5000
+  protocol          = "tcp"
+  cidr_blocks       = ["${each.value.address}/32"]
+  security_group_id = data.terraform_remote_state.controller.outputs.copilot_security_group_id
 }

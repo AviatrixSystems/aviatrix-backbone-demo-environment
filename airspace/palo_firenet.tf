@@ -115,11 +115,36 @@ resource "aws_iam_instance_profile" "palo" {
 
 # Enable palo policies
 resource "aviatrix_transit_firenet_policy" "palo_peering" {
-  for_each                     = { for k, v in local.transit_firenet : k => v if k != "aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}" }
   transit_firenet_gateway_name = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name
-  inspected_resource_name      = "PEERING:${module.multicloud_transit.transit[each.key].transit_gateway.gw_name}"
+  inspected_resource_name      = "PEERING:${module.multicloud_transit.transit["azure_${replace(lower(var.transit_azure_region), "/[ -]/", "_")}"].transit_gateway.gw_name}"
   depends_on = [
     module.multicloud_transit
+  ]
+}
+
+# TODO: Make this a reference to edge output
+resource "aviatrix_transit_firenet_policy" "edge_dc" {
+  transit_firenet_gateway_name = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name
+  inspected_resource_name      = "EDGESPOKE:dc-metro-equinix-edge-site"
+  depends_on = [
+    module.edge_dc
+  ]
+}
+
+# TODO: Make this a reference to edge output
+resource "aviatrix_transit_firenet_policy" "edge_sv" {
+  transit_firenet_gateway_name = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name
+  inspected_resource_name      = "EDGESPOKE:sv-metro-equinix-edge-site"
+  depends_on = [
+    module.edge_sv
+  ]
+}
+
+resource "aviatrix_transit_firenet_policy" "tgw_us_east_1" {
+  transit_firenet_gateway_name = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name
+  inspected_resource_name      = "SITE2CLOUD:${aviatrix_transit_external_device_conn.tgw_us_east_1.connection_name}"
+  depends_on = [
+    module.edge_sv
   ]
 }
 

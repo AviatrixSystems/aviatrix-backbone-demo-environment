@@ -46,6 +46,15 @@ provider "azurerm" {
   tenant_id       = var.azure_directory_id
 }
 
+provider "azurerm" {
+  alias = "shared-images"
+  features {}
+  subscription_id = var.azure_shared_images_subscription_id
+  client_id       = var.azure_application_id
+  client_secret   = var.azure_application_key
+  tenant_id       = var.azure_directory_id
+}
+
 provider "oci" {
   region              = var.transit_oci_region
   tenancy_ocid        = var.oci_tenant_ocid

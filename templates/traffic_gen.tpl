@@ -27,14 +27,17 @@ for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:3
 for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:30030; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
 for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:30032; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
 for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:30041; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
+for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:80; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
 for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:443; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
 for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:5000; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
 for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:514; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
 for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:3306; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
 for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:1433; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
 for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:8443; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
+for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:50010; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
+for i in \$(echo ${apps}|tr "," "\n"); do sudo curl --insecure -m 1 http://\$i:59850; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
 for i in \$(echo ${external}|tr "," "\n"); do sudo curl --insecure -m 1 https://\$i; echo "\$(date): curl \$i" | sudo tee -a /var/log/traffic-gen.log; done
-wget --read-timeout=2 http://s3.amazonaws.com/aws-immersion-day.aviatrixlab.com/AWS-ImmersionDay-us-east-1-6.9.yaml -O /home/workload/test.file
+wget --read-timeout=2 http://s3.amazonaws.com/aws-immersion-day.aviatrixlab.com/5MB_test_file.bin -O /home/workload/test.file
 rm -rf /home/workload/test.file
 SCR
 chmod +x /home/workload/cron.sh
@@ -47,6 +50,14 @@ sudo systemctl restart cron
 echo "server {
     listen 80;
     listen 443;
+    listen 514;
+    listen 5000;
+    listen 8443;
+    listen 30000-30041; 
+    listen 50010;
+    listen 59850;
+    listen 1433;
+    listen 3306;
 
     error_page    500 502 503 504  /50x.html;
 
