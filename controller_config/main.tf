@@ -131,7 +131,7 @@ resource "aviatrix_netflow_agent" "copilot" {
   server_ip      = data.terraform_remote_state.controller.outputs.copilot_public_ip
   port           = 31283
   version        = "9"
-  enable_l7_mode = true
+  enable_l7_mode = false
 }
 
 # Copilot association
@@ -146,6 +146,20 @@ resource "aviatrix_saml_endpoint" "aviatrix_saml_sso" {
   idp_metadata_url             = var.idp_metadata_url
   controller_login             = true
   access_set_by                = "profile_attribute"
+  custom_saml_request_template = templatefile("${path.module}/saml_request.tpl", {})
+  lifecycle {
+    ignore_changes = [
+      custom_saml_request_template
+    ]
+  }
+}
+
+# WAF rules interfere with the aviatrix_saml_endpoint apply
+resource "aviatrix_saml_endpoint" "aviatrix_vpn_sso" {
+  endpoint_name                = "aviatrix_vpn_sso"
+  idp_metadata_type            = "URL"
+  idp_metadata_url             = var.vpn_idp_metadata_url
+  controller_login             = false
   custom_saml_request_template = templatefile("${path.module}/saml_request.tpl", {})
   lifecycle {
     ignore_changes = [

@@ -86,3 +86,7 @@ variable "controller_label" {
 variable "idp_metadata_url" {
   description = "Aviatrix controller sso idp metadata url"
 }
+
+variable "vpn_idp_metadata_url" {
+  description = "Aviatrix vpn sso idp metadata url"
+}

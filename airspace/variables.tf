@@ -127,25 +127,27 @@ locals {
     "10.6.2.10",
     "10.7.2.10",
     "10.40.251.29",
-    "10.50.251.29"
+    "10.50.251.29",
+    "10.99.2.10"
   ]
 
   traffic_gen = {
-    aws_sao_paulo_temp = {
-      private_ip = "10.5.101.10"
-      name       = "aws-sau-paulo-temp"
-      apps       = setunion(setsubtract(local.workload_ips, ["10.5.2.10"]), ["10.98.2.10"])
-      sap        = []
-      external   = []
-      interval   = "15"
-    }
     aws_sao_paulo = {
       private_ip = "10.5.2.10"
       name       = "aws-sau-paulo-workload"
-      apps       = setunion(setsubtract(local.workload_ips, ["10.5.2.10"]), ["10.98.2.10"])
-      sap        = []
-      external   = []
-      interval   = "15"
+      apps = [
+        "10.91.2.10",
+        "10.92.2.10",
+        "10.93.2.20",
+        "10.94.2.10",
+        "10.95.2.10",
+        "10.96.2.10",
+        "10.97.251.29",
+        "10.98.251.29"
+      ]
+      sap      = []
+      external = []
+      interval = "15"
     }
     aws_landing_zone = {
       private_ip = "10.7.2.10"

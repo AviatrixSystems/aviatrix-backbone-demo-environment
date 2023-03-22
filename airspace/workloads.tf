@@ -1,27 +1,8 @@
 # aws
-module "temp_instance" {
-  source               = "./mc-instance"
-  vpc_id               = module.vpc.vpc_id
-  subnet_id            = module.vpc.public_subnets[0]
-  cloud                = "aws"
-  traffic_gen          = local.traffic_gen.aws_sao_paulo_temp
-  iam_instance_profile = aws_iam_instance_profile.accounting_ec2_role_for_ssm.name
-  common_tags = merge(var.common_tags, {
-    Environment = "Temp"
-  })
-  workload_template_path = var.workload_template_path
-  workload_template      = "traffic_gen.tpl"
-  workload_password      = var.workload_instance_password
-  image                  = data.aws_ami.fs_packer_sa_east_1.id
-  providers = {
-    aws = aws.sa-east-1
-  }
-}
-
 module "aws_sao_paulo_workload" {
   source               = "./mc-instance"
   vpc_id               = module.vpc.vpc_id
-  subnet_id            = module.vpc.private_subnets[1]
+  subnet_id            = module.vpc.private_subnets[0]
   cloud                = "aws"
   traffic_gen          = local.traffic_gen.aws_sao_paulo
   iam_instance_profile = aws_iam_instance_profile.accounting_ec2_role_for_ssm.name

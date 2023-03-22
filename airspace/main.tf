@@ -21,6 +21,22 @@ module "avx_spoke" {
   attached   = true
 }
 
+resource "aws_s3_bucket" "avx_spoke_flow_logs" {
+  bucket   = "logs.backbone.aviatrixtest.com"
+  provider = aws.us-east-2
+}
+
+resource "aws_flow_log" "avx_spoke" {
+  log_destination      = aws_s3_bucket.avx_spoke_flow_logs.arn
+  log_destination_type = "s3"
+  traffic_type         = "ALL"
+  vpc_id               = module.avx_spoke.vpc.vpc_id
+  provider             = aws.us-east-2
+  tags = merge(var.common_tags, {
+    Name = "avx-us-east-2-spoke-flow-logs"
+  })
+}
+
 data "aws_route_table" "avx_spoke_public_1" {
   subnet_id = module.avx_spoke.vpc.public_subnets[0].subnet_id
   provider  = aws.us-east-2
@@ -60,9 +76,9 @@ module "avx_landing_zone" {
   region                           = var.transit_aws_palo_firenet_region
   account                          = var.aws_backbone_account_name
   instance_size                    = "t3.micro"
-  included_advertised_spoke_routes = "10.99.2.10/32,10.7.2.0/24"
-  enable_bgp                       = true
-  local_as_number                  = 65106
+  included_advertised_spoke_routes = "10.99.2.0/24,10.7.2.0/24"
+  # enable_bgp                       = true
+  # local_as_number                  = 65106
 
   transit_gw = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name
   ha_gw      = false

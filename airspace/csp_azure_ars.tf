@@ -300,3 +300,45 @@ resource "azurerm_route_server_bgp_connection" "nva" {
   peer_ip         = azurerm_network_interface.nva.private_ip_address
   route_server_id = azurerm_route_server.default.id
 }
+
+# Flow Logs
+resource "azurerm_storage_account" "flow_logs" {
+  name                = "nvaflowsa"
+  resource_group_name = "NetworkWatcherRG"
+  location            = azurerm_resource_group.vnet_germany_west_central.location
+
+  account_tier              = "Standard"
+  account_kind              = "StorageV2"
+  account_replication_type  = "LRS"
+  enable_https_traffic_only = true
+}
+
+resource "azurerm_log_analytics_workspace" "flow_logs" {
+  name                = "nva-law"
+  location            = azurerm_resource_group.vnet_germany_west_central.location
+  resource_group_name = "NetworkWatcherRG"
+  sku                 = "PerGB2018"
+}
+
+resource "azurerm_network_watcher_flow_log" "flow_logs" {
+  network_watcher_name = "NetworkWatcher_germanywestcentral"
+  resource_group_name  = "NetworkWatcherRG"
+  name                 = "nva-flow-log"
+
+  network_security_group_id = azurerm_network_security_group.nva.id
+  storage_account_id        = azurerm_storage_account.flow_logs.id
+  enabled                   = true
+
+  retention_policy {
+    enabled = true
+    days    = 7
+  }
+
+  traffic_analytics {
+    enabled               = true
+    workspace_id          = azurerm_log_analytics_workspace.flow_logs.workspace_id
+    workspace_region      = azurerm_log_analytics_workspace.flow_logs.location
+    workspace_resource_id = azurerm_log_analytics_workspace.flow_logs.id
+    interval_in_minutes   = 10
+  }
+}
