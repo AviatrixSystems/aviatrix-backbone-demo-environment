@@ -4,8 +4,8 @@ data "google_compute_image" "ubuntu" {
 }
 
 resource "google_compute_instance" "this" {
-  name         = var.traffic_gen.name
-  machine_type = "f1-micro"
+  name         = var.name
+  machine_type = var.instance_size
   zone         = "${var.region}-a"
 
   boot_disk {
@@ -17,27 +17,27 @@ resource "google_compute_instance" "this" {
   network_interface {
     network    = var.vpc_id
     subnetwork = var.subnet_id
-    network_ip = var.traffic_gen.private_ip
+    network_ip = var.private_ip == "" ? null : var.private_ip
+    dynamic "access_config" {
+      for_each = var.public_ip ? ["public_ip"] : []
+
+      content {
+        #   // Ephemeral public IP
+      }
+    }
     # enable for instance troubleshooting
     # access_config {
     #   // Ephemeral public IP
     # }
   }
 
-  metadata_startup_script = templatefile("${var.workload_template_path}/${var.workload_template}", {
-    name     = var.traffic_gen.name
-    apps     = join(",", var.traffic_gen.apps)
-    external = join(",", var.traffic_gen.external)
-    sap      = join(",", var.traffic_gen.sap)
-    interval = var.traffic_gen.interval
-    password = var.workload_password
-  })
+  metadata_startup_script = var.user_data_templatefile
 
   labels = merge(local.lower_common_tags, {
-    name = var.traffic_gen.name
+    name = var.name
   })
 
-  tags = ["workload"]
+  tags = ["instance"]
   metadata = {
     ssh-keys = fileexists("~/.ssh/id_rsa.pub") ? "ubuntu:${file("~/.ssh/id_rsa.pub")}" : null
   }
@@ -48,7 +48,7 @@ data "http" "myip" {
 }
 
 resource "google_compute_firewall" "this_ingress" {
-  name    = "${var.traffic_gen.name}-ingress"
+  name    = "${var.name}-ingress"
   network = var.vpc_id
 
   allow {
@@ -56,11 +56,39 @@ resource "google_compute_firewall" "this_ingress" {
   }
 
   source_ranges = ["${chomp(data.http.myip.response_body)}/32", "10.0.0.0/8", "192.168.0.0/16", "172.16.0.0/12"]
-  target_tags   = ["workload"]
+  target_tags   = ["instance"]
+}
+
+resource "google_compute_firewall" "this_ingress_tcp" {
+  for_each = var.inbound_tcp
+  name     = "${var.name}-ingress-tcp-${each.key}"
+  network  = var.vpc_id
+
+  allow {
+    protocol = "tcp"
+    ports    = [each.key]
+  }
+
+  source_ranges = each.value
+  target_tags   = ["instance"]
+}
+
+resource "google_compute_firewall" "this_ingress_udp" {
+  for_each = var.inbound_udp
+  name     = "${var.name}-ingress-udp-${each.key}"
+  network  = var.vpc_id
+
+  allow {
+    protocol = "udp"
+    ports    = [each.key]
+  }
+
+  source_ranges = each.value
+  target_tags   = ["instance"]
 }
 
 resource "google_compute_firewall" "this_egress" {
-  name      = "${var.traffic_gen.name}-egress"
+  name      = "${var.name}-egress"
   network   = var.vpc_id
   direction = "EGRESS"
 
@@ -69,5 +97,5 @@ resource "google_compute_firewall" "this_egress" {
   }
 
   destination_ranges = ["0.0.0.0/0"]
-  target_tags        = ["workload"]
+  target_tags        = ["instance"]
 }

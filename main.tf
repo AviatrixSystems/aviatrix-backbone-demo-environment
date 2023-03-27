@@ -48,3 +48,57 @@ resource "aws_route53_record" "palo" {
   records  = [module.backbone.palo_public_ip]
   provider = aws.dns
 }
+
+resource "aws_route53_record" "aws_us_east_2_avx_wl" {
+  zone_id  = data.aws_route53_zone.backbone.zone_id
+  name     = "avx-east-2-wl.${data.aws_route53_zone.backbone.name}"
+  type     = "A"
+  ttl      = "1"
+  records  = [module.backbone.workload_private_ips.aws_us_east_2_avx]
+  provider = aws.dns
+}
+
+resource "aws_route53_record" "aws_us_east_2_wl" {
+  zone_id  = data.aws_route53_zone.backbone.zone_id
+  name     = "aws-east-2-wl.${data.aws_route53_zone.backbone.name}"
+  type     = "A"
+  ttl      = "1"
+  records  = [module.backbone.workload_private_ips.aws_us_east_2]
+  provider = aws.dns
+}
+
+resource "aws_route53_record" "aws_us_east_1_wl" {
+  zone_id  = data.aws_route53_zone.backbone.zone_id
+  name     = "aws-east-1-wl.${data.aws_route53_zone.backbone.name}"
+  type     = "A"
+  ttl      = "1"
+  records  = [module.backbone.workload_private_ips.aws_us_east_1]
+  provider = aws.dns
+}
+
+resource "aws_route53_record" "azure_wl" {
+  zone_id  = data.aws_route53_zone.backbone.zone_id
+  name     = "azure-wl.${data.aws_route53_zone.backbone.name}"
+  type     = "A"
+  ttl      = "1"
+  records  = [module.backbone.workload_private_ips.azure]
+  provider = aws.dns
+}
+
+resource "aws_route53_record" "oci_wl" {
+  zone_id  = data.aws_route53_zone.backbone.zone_id
+  name     = "oci-wl.${data.aws_route53_zone.backbone.name}"
+  type     = "A"
+  ttl      = "1"
+  records  = [module.backbone.workload_private_ips.oci]
+  provider = aws.dns
+}
+
+resource "aws_route53_record" "gcp_wl" {
+  zone_id  = data.aws_route53_zone.backbone.zone_id
+  name     = "gcp-wl.${data.aws_route53_zone.backbone.name}"
+  type     = "A"
+  ttl      = "1"
+  records  = [module.backbone.workload_private_ips.gcp]
+  provider = aws.dns
+}

@@ -77,8 +77,6 @@ module "avx_landing_zone" {
   account                          = var.aws_backbone_account_name
   instance_size                    = "t3.micro"
   included_advertised_spoke_routes = "10.99.2.0/24,10.7.2.0/24"
-  # enable_bgp                       = true
-  # local_as_number                  = 65106
 
   transit_gw = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name
   ha_gw      = false

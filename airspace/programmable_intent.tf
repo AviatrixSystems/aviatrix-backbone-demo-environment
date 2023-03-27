@@ -29,6 +29,34 @@ resource "aviatrix_distributed_firewalling_policy_list" "demo" {
     ]
   }
   policies {
+    name     = "Allow-edge-sv-to-azure"
+    action   = "PERMIT"
+    priority = 50
+    protocol = "Any"
+    logging  = true
+    watch    = true
+    src_smart_groups = [
+      aviatrix_smart_group.edge_sv.uuid
+    ]
+    dst_smart_groups = [
+      aviatrix_smart_group.aws.uuid
+    ]
+  }
+  policies {
+    name     = "Allow-edge-dc-to-azure"
+    action   = "PERMIT"
+    priority = 60
+    protocol = "Any"
+    logging  = true
+    watch    = true
+    src_smart_groups = [
+      aviatrix_smart_group.edge_dc.uuid
+    ]
+    dst_smart_groups = [
+      aviatrix_smart_group.aws.uuid,
+    ]
+  }
+  policies {
     name     = "Application-deny-all"
     action   = "DENY"
     priority = 1000
@@ -75,9 +103,34 @@ resource "aviatrix_segmentation_network_domain_association" "aws" {
   attachment_name     = module.avx_spoke.spoke_gateway.gw_name
 }
 
+resource "aviatrix_segmentation_network_domain_association" "aws_tgw_us_east_1" {
+  network_domain_name = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
+  attachment_name     = aviatrix_transit_external_device_conn.tgw_us_east_1.connection_name
+}
+
+resource "aviatrix_segmentation_network_domain_association" "aws_tgw_us_east_2" {
+  network_domain_name = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
+  attachment_name     = aviatrix_transit_external_device_conn.tgw_us_east_2.connection_name
+}
+
 resource "aviatrix_segmentation_network_domain_association" "landing_zone" {
   network_domain_name = aviatrix_segmentation_network_domain.demo["Landing_zone"].domain_name
   attachment_name     = module.avx_landing_zone.spoke_gateway.gw_name
+}
+
+resource "aviatrix_segmentation_network_domain_association" "gcp" {
+  network_domain_name = aviatrix_segmentation_network_domain.demo["Gcp"].domain_name
+  attachment_name     = aviatrix_transit_external_device_conn.hub.connection_name
+}
+
+resource "aviatrix_segmentation_network_domain_association" "azure" {
+  network_domain_name = aviatrix_segmentation_network_domain.demo["Azure"].domain_name
+  attachment_name     = aviatrix_transit_external_device_conn.default.connection_name
+}
+
+resource "aviatrix_segmentation_network_domain_association" "oci" {
+  network_domain_name = aviatrix_segmentation_network_domain.demo["Oci"].domain_name
+  attachment_name     = aviatrix_transit_external_device_conn.oci_drg.connection_name
 }
 
 resource "aviatrix_segmentation_network_domain_association" "edge_sv" {
@@ -94,6 +147,41 @@ resource "aviatrix_segmentation_network_domain_association" "edge_dc" {
 
 resource "aviatrix_segmentation_network_domain_connection_policy" "aws_edge" {
   domain_name_1 = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Edge"].domain_name
+}
+
+resource "aviatrix_segmentation_network_domain_connection_policy" "aws_azure" {
+  domain_name_1 = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Azure"].domain_name
+}
+
+resource "aviatrix_segmentation_network_domain_connection_policy" "aws_gcp" {
+  domain_name_1 = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Gcp"].domain_name
+}
+
+resource "aviatrix_segmentation_network_domain_connection_policy" "aws_oci" {
+  domain_name_1 = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Oci"].domain_name
+}
+
+resource "aviatrix_segmentation_network_domain_connection_policy" "gcp_oci" {
+  domain_name_1 = aviatrix_segmentation_network_domain.demo["Gcp"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Oci"].domain_name
+}
+
+resource "aviatrix_segmentation_network_domain_connection_policy" "gcp_azure" {
+  domain_name_1 = aviatrix_segmentation_network_domain.demo["Gcp"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Azure"].domain_name
+}
+
+resource "aviatrix_segmentation_network_domain_connection_policy" "azure_oci" {
+  domain_name_1 = aviatrix_segmentation_network_domain.demo["Azure"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Oci"].domain_name
+}
+
+resource "aviatrix_segmentation_network_domain_connection_policy" "azure_edge" {
+  domain_name_1 = aviatrix_segmentation_network_domain.demo["Azure"].domain_name
   domain_name_2 = aviatrix_segmentation_network_domain.demo["Edge"].domain_name
 }
 

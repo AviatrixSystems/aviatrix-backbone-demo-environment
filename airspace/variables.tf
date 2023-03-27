@@ -1,7 +1,7 @@
 locals {
   public_key = fileexists("~/.ssh/id_rsa.pub") ? "${file("~/.ssh/id_rsa.pub")}" : var.public_key
 
-  network_domains = ["Aws", "Landing_zone", "Edge"]
+  network_domains = ["Aws", "Landing_zone", "Edge", "Azure", "Gcp", "Oci"]
 
   transit_firenet = {
     ("aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}") = {

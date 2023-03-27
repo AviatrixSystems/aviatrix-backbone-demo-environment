@@ -1,10 +1,10 @@
 resource "aws_security_group" "this" {
-  name        = var.traffic_gen.name
-  description = "Workload security group"
+  name        = var.name
+  description = "Instance security group"
   vpc_id      = var.vpc_id
 
   tags = merge(var.common_tags, {
-    Name = var.traffic_gen.name
+    Name = var.name
   })
 }
 
@@ -15,6 +15,28 @@ resource "aws_security_group_rule" "this_rfc1918" {
   to_port           = -1
   protocol          = -1
   cidr_blocks       = ["10.0.0.0/8", "192.168.0.0/16", "172.16.0.0/12"]
+  security_group_id = aws_security_group.this.id
+}
+
+resource "aws_security_group_rule" "this_inbound_tcp" {
+  for_each          = var.inbound_tcp
+  type              = "ingress"
+  description       = "Allow inbound access from cidrs"
+  from_port         = each.key
+  to_port           = each.key
+  protocol          = "tcp"
+  cidr_blocks       = each.value
+  security_group_id = aws_security_group.this.id
+}
+
+resource "aws_security_group_rule" "this_inbound_udp" {
+  for_each          = var.inbound_udp
+  type              = "ingress"
+  description       = "Allow inbound access from cidrs"
+  from_port         = each.key
+  to_port           = each.key
+  protocol          = "udp"
+  cidr_blocks       = each.value
   security_group_id = aws_security_group.this.id
 }
 
@@ -41,35 +63,32 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "tls_private_key" "workload_key" {
+resource "tls_private_key" "this" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
-resource "aws_key_pair" "workload_key" {
-  key_name   = "workload-key-${var.vpc_id}-${var.common_tags.Environment}"
-  public_key = fileexists("~/.ssh/id_rsa.pub") ? "${file("~/.ssh/id_rsa.pub")}" : tls_private_key.workload_key.public_key_openssh
+resource "random_id" "this" {
+  byte_length = 4
+}
+
+resource "aws_key_pair" "this" {
+  key_name   = "instance-key-${var.vpc_id}-${random_id.this.id}"
+  public_key = var.public_key != null ? var.public_key : tls_private_key.this.public_key_openssh
 }
 
 resource "aws_instance" "this" {
-  ami                  = var.image == null ? data.aws_ami.ubuntu.id : var.image
-  instance_type        = "t3.nano"
-  ebs_optimized        = false
-  monitoring           = true
-  key_name             = aws_key_pair.workload_key.key_name
-  subnet_id            = var.subnet_id
-  iam_instance_profile = var.iam_instance_profile
-  user_data = templatefile("${var.workload_template_path}/${var.workload_template}", {
-    name     = var.traffic_gen.name
-    apps     = join(",", var.traffic_gen.apps)
-    external = join(",", var.traffic_gen.external)
-    sap      = join(",", var.traffic_gen.sap)
-    interval = var.traffic_gen.interval
-    password = var.workload_password
-  })
-  associate_public_ip_address = false
+  ami                         = var.image == null ? data.aws_ami.ubuntu.id : var.image
+  instance_type               = var.instance_size
+  ebs_optimized               = false
+  monitoring                  = true
+  key_name                    = aws_key_pair.this.key_name
+  subnet_id                   = var.subnet_id
+  iam_instance_profile        = var.iam_instance_profile
+  user_data                   = var.user_data_templatefile
+  associate_public_ip_address = var.public_ip ? true : false
   vpc_security_group_ids      = [aws_security_group.this.id]
-  private_ip                  = var.traffic_gen.private_ip
+  private_ip                  = var.private_ip == "" ? null : var.private_ip
 
   root_block_device {
     volume_type = "gp2"
@@ -77,6 +96,6 @@ resource "aws_instance" "this" {
   }
 
   tags = merge(var.common_tags, {
-    Name = var.traffic_gen.name
+    Name = var.name
   })
 }
