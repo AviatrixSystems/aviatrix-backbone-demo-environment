@@ -101,7 +101,7 @@ resource "azurerm_network_security_rule" "this_inbound_tcp" {
   for_each                    = var.inbound_tcp
   access                      = "Allow"
   direction                   = "Inbound"
-  name                        = "inbound tcp ${each.key}"
+  name                        = "inbound_tcp_${each.key}"
   priority                    = (index(keys(var.inbound_tcp), each.key) + 101)
   protocol                    = "Tcp"
   source_port_range           = "*"
@@ -116,7 +116,7 @@ resource "azurerm_network_security_rule" "this_inbound_udp" {
   for_each                    = var.inbound_udp
   access                      = "Allow"
   direction                   = "Inbound"
-  name                        = "inbound udp ${each.key}"
+  name                        = "inbound_udp_${each.key}"
   priority                    = (index(keys(var.inbound_tcp), each.key) + 151)
   protocol                    = "Udp"
   source_port_range           = "*"

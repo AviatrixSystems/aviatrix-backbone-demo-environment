@@ -126,6 +126,8 @@ locals {
     "10.5.2.10",
     "10.6.2.10",
     "10.7.2.10",
+    "10.8.2.10",
+    "10.9.2.10",
     "10.40.251.29",
     "10.50.251.29",
     "10.99.2.10"
@@ -149,14 +151,6 @@ locals {
       external = []
       interval = "15"
     }
-    aws_landing_zone = {
-      private_ip = "10.7.2.10"
-      name       = "aws-landing-zone-workload"
-      apps       = setsubtract(local.workload_ips, ["10.7.2.10"])
-      sap        = []
-      external   = local.external
-      interval   = "15"
-    }
     aws_us_east_1 = {
       private_ip = "10.1.2.10"
       name       = "aws-us-east-1-workload"
@@ -164,22 +158,6 @@ locals {
       sap        = []
       external   = local.external
       interval   = "10"
-    }
-    aws_us_east_2 = {
-      private_ip = "10.5.2.10"
-      name       = "aws-us-east-2-workload"
-      apps       = setsubtract(local.workload_ips, ["10.5.2.10"])
-      sap        = []
-      external   = local.external
-      interval   = "5"
-    }
-    aws_us_east_2_avx = {
-      private_ip = "10.6.2.10"
-      name       = "avx-spoke-workload"
-      apps       = setsubtract(local.workload_ips, ["10.6.2.10"])
-      sap        = []
-      external   = local.external
-      interval   = "5"
     }
     azure = {
       private_ip = "10.2.2.10"
@@ -204,6 +182,46 @@ locals {
       sap        = []
       external   = local.external
       interval   = "5"
+    }
+    aws_us_east_2 = {
+      private_ip = "10.5.2.10"
+      name       = "aws-us-east-2-workload"
+      apps       = setsubtract(local.workload_ips, ["10.5.2.10"])
+      sap        = []
+      external   = local.external
+      interval   = "5"
+    }
+    aws_us_east_2_avx = {
+      private_ip = "10.6.2.10"
+      name       = "avx-spoke-workload"
+      apps       = setsubtract(local.workload_ips, ["10.6.2.10"])
+      sap        = []
+      external   = local.external
+      interval   = "5"
+    }
+    aws_landing_zone = {
+      private_ip = "10.7.2.10"
+      name       = "aws-landing-zone-workload"
+      apps       = setsubtract(local.workload_ips, ["10.7.2.10"])
+      sap        = []
+      external   = local.external
+      interval   = "15"
+    }
+    aws_us_east_1_dev = {
+      private_ip = "10.8.2.10"
+      name       = "aws-us-east-1-dev"
+      apps       = setsubtract(local.workload_ips, ["10.8.2.10"])
+      sap        = []
+      external   = local.external
+      interval   = "20"
+    }
+    aws_us_east_2_dev = {
+      private_ip = "10.9.2.10"
+      name       = "aws-us-east-2-dev"
+      apps       = setsubtract(local.workload_ips, ["10.9.2.10"])
+      sap        = []
+      external   = local.external
+      interval   = "20"
     }
     edge_sv = {
       name     = "edge-sv-workload"

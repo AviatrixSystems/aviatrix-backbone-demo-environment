@@ -57,6 +57,64 @@ module "aws_us_east_1_workload" {
   }
 }
 
+module "aws_us_east_1_dev" {
+  source               = "./mc-instance"
+  name                 = local.traffic_gen.aws_us_east_1_dev.name
+  private_ip           = local.traffic_gen.aws_us_east_1_dev.private_ip
+  vpc_id               = module.vpc_us_east_1_dev.vpc_id
+  subnet_id            = module.vpc_us_east_1_dev.private_subnets[0]
+  cloud                = "aws"
+  iam_instance_profile = aws_iam_instance_profile.accounting_ec2_role_for_ssm.name
+  public_key           = fileexists("~/.ssh/id_rsa.pub") ? "${file("~/.ssh/id_rsa.pub")}" : null
+  common_tags = merge(var.common_tags, {
+    Environment = "Development"
+  })
+  password = var.workload_instance_password
+  image    = data.aws_ami.fs_packer_us_east_1.id
+
+  user_data_templatefile = templatefile("${var.workload_template_path}/traffic_gen.tpl",
+    {
+      name     = local.traffic_gen.aws_us_east_1_dev.name
+      apps     = join(",", local.traffic_gen.aws_us_east_1_dev.apps)
+      external = join(",", local.traffic_gen.aws_us_east_1_dev.external)
+      sap      = join(",", local.traffic_gen.aws_us_east_1_dev.sap)
+      interval = local.traffic_gen.aws_us_east_1_dev.interval
+      password = var.workload_instance_password
+  })
+  providers = {
+    aws = aws.us-east-1
+  }
+}
+
+module "aws_us_east_2_dev" {
+  source               = "./mc-instance"
+  name                 = local.traffic_gen.aws_us_east_2_dev.name
+  private_ip           = local.traffic_gen.aws_us_east_2_dev.private_ip
+  vpc_id               = module.vpc_us_east_2_dev.vpc_id
+  subnet_id            = module.vpc_us_east_2_dev.private_subnets[0]
+  cloud                = "aws"
+  iam_instance_profile = aws_iam_instance_profile.accounting_ec2_role_for_ssm.name
+  public_key           = fileexists("~/.ssh/id_rsa.pub") ? "${file("~/.ssh/id_rsa.pub")}" : null
+  common_tags = merge(var.common_tags, {
+    Environment = "Development"
+  })
+  password = var.workload_instance_password
+  image    = data.aws_ami.fs_packer_us_east_2.id
+
+  user_data_templatefile = templatefile("${var.workload_template_path}/traffic_gen.tpl",
+    {
+      name     = local.traffic_gen.aws_us_east_2_dev.name
+      apps     = join(",", local.traffic_gen.aws_us_east_2_dev.apps)
+      external = join(",", local.traffic_gen.aws_us_east_2_dev.external)
+      sap      = join(",", local.traffic_gen.aws_us_east_2_dev.sap)
+      interval = local.traffic_gen.aws_us_east_2_dev.interval
+      password = var.workload_instance_password
+  })
+  providers = {
+    aws = aws.us-east-2
+  }
+}
+
 module "aws_landing_zone_workload" {
   source               = "./mc-instance"
   name                 = local.traffic_gen.aws_landing_zone.name
@@ -155,11 +213,7 @@ module "azure_workload" {
   resource_group = azurerm_resource_group.vnet_germany_west_central.name
   location       = var.transit_azure_region
   password       = var.workload_instance_password
-  inbound_tcp = {
-    443 = ["0.0.0.0/0", "32.55.23.22/32"]
-    80  = ["0.0.0.0/0"]
-  }
-  common_tags = merge(var.common_tags, {})
+  common_tags    = merge(var.common_tags, {})
 
   user_data_templatefile = templatefile("${var.workload_template_path}/traffic_gen.tpl",
     {
