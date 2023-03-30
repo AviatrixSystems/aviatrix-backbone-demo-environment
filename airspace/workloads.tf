@@ -19,7 +19,6 @@ module "aws_sao_paulo_workload" {
       name     = local.traffic_gen.aws_sao_paulo.name
       apps     = join(",", local.traffic_gen.aws_sao_paulo.apps)
       external = join(",", local.traffic_gen.aws_sao_paulo.external)
-      sap      = join(",", local.traffic_gen.aws_sao_paulo.sap)
       interval = local.traffic_gen.aws_sao_paulo.interval
       password = var.workload_instance_password
   })
@@ -48,7 +47,6 @@ module "aws_us_east_1_workload" {
       name     = local.traffic_gen.aws_us_east_1.name
       apps     = join(",", local.traffic_gen.aws_us_east_1.apps)
       external = join(",", local.traffic_gen.aws_us_east_1.external)
-      sap      = join(",", local.traffic_gen.aws_us_east_1.sap)
       interval = local.traffic_gen.aws_us_east_1.interval
       password = var.workload_instance_password
   })
@@ -77,7 +75,6 @@ module "aws_us_east_1_dev" {
       name     = local.traffic_gen.aws_us_east_1_dev.name
       apps     = join(",", local.traffic_gen.aws_us_east_1_dev.apps)
       external = join(",", local.traffic_gen.aws_us_east_1_dev.external)
-      sap      = join(",", local.traffic_gen.aws_us_east_1_dev.sap)
       interval = local.traffic_gen.aws_us_east_1_dev.interval
       password = var.workload_instance_password
   })
@@ -106,7 +103,6 @@ module "aws_us_east_2_dev" {
       name     = local.traffic_gen.aws_us_east_2_dev.name
       apps     = join(",", local.traffic_gen.aws_us_east_2_dev.apps)
       external = join(",", local.traffic_gen.aws_us_east_2_dev.external)
-      sap      = join(",", local.traffic_gen.aws_us_east_2_dev.sap)
       interval = local.traffic_gen.aws_us_east_2_dev.interval
       password = var.workload_instance_password
   })
@@ -135,7 +131,6 @@ module "aws_landing_zone_workload" {
       name     = local.traffic_gen.aws_landing_zone.name
       apps     = join(",", local.traffic_gen.aws_landing_zone.apps)
       external = join(",", local.traffic_gen.aws_landing_zone.external)
-      sap      = join(",", local.traffic_gen.aws_landing_zone.sap)
       interval = local.traffic_gen.aws_landing_zone.interval
       password = var.workload_instance_password
   })
@@ -164,7 +159,6 @@ module "aws_us_east_2_workload" {
       name     = local.traffic_gen.aws_us_east_2.name
       apps     = join(",", local.traffic_gen.aws_us_east_2.apps)
       external = join(",", local.traffic_gen.aws_us_east_2.external)
-      sap      = join(",", local.traffic_gen.aws_us_east_2.sap)
       interval = local.traffic_gen.aws_us_east_2.interval
       password = var.workload_instance_password
   })
@@ -193,7 +187,6 @@ module "aws_us_east_2_avx_workload" {
       name     = local.traffic_gen.aws_us_east_2_avx.name
       apps     = join(",", local.traffic_gen.aws_us_east_2_avx.apps)
       external = join(",", local.traffic_gen.aws_us_east_2_avx.external)
-      sap      = join(",", local.traffic_gen.aws_us_east_2_avx.sap)
       interval = local.traffic_gen.aws_us_east_2_avx.interval
       password = var.workload_instance_password
   })
@@ -220,7 +213,6 @@ module "azure_workload" {
       name     = local.traffic_gen.azure.name
       apps     = join(",", local.traffic_gen.azure.apps)
       external = join(",", local.traffic_gen.azure.external)
-      sap      = join(",", local.traffic_gen.azure.sap)
       interval = local.traffic_gen.azure.interval
       password = var.workload_instance_password
   })
@@ -248,7 +240,6 @@ module "gcp_us_west1_workload" {
       name     = local.traffic_gen.gcp.name
       apps     = join(",", local.traffic_gen.gcp.apps)
       external = join(",", local.traffic_gen.gcp.external)
-      sap      = join(",", local.traffic_gen.gcp.sap)
       interval = local.traffic_gen.gcp.interval
       password = var.workload_instance_password
   })
@@ -272,7 +263,6 @@ module "oci_workload" {
       name     = local.traffic_gen.oci.name
       apps     = join(",", local.traffic_gen.oci.apps)
       external = join(",", local.traffic_gen.oci.external)
-      sap      = join(",", local.traffic_gen.oci.sap)
       interval = local.traffic_gen.oci.interval
       password = var.workload_instance_password
   })

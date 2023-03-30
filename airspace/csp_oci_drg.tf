@@ -1,7 +1,7 @@
 # oci
 resource "oci_core_vcn" "spoke" {
   compartment_id = var.oci_backbone_compartment_ocid
-  cidr_blocks    = ["10.3.2.0/24"]
+  cidr_blocks    = [local.cidrs.oci_singapore_1]
   display_name   = "spoke"
 }
 

@@ -23,7 +23,7 @@ module "vnet_germany_west_central" {
   resource_group_name = azurerm_resource_group.vnet_germany_west_central.name
   vnet_location       = azurerm_resource_group.vnet_germany_west_central.location
   use_for_each        = true
-  address_space       = ["10.2.2.0/24"]
+  address_space       = [local.cidrs.azure_germany_west_central]
   subnet_names        = ["private-subnet1", "public-subnet1"]
   subnet_prefixes     = ["10.2.2.0/28", "10.2.2.32/28"]
   route_tables_ids = {
@@ -233,7 +233,7 @@ data "cloudinit_config" "nva" {
       {
         asn_quagga      = "65516"
         bgp_routerId    = azurerm_network_interface.nva.ip_configuration[0].private_ip_address
-        bgp_network1    = "10.2.2.0/24"
+        bgp_network1    = local.cidrs.azure_germany_west_central
         routeserver_IP1 = tolist(azurerm_route_server.default.virtual_router_ips)[0]
         routeserver_IP2 = tolist(azurerm_route_server.default.virtual_router_ips)[1]
     })

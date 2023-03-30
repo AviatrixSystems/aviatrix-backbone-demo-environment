@@ -1,13 +1,7 @@
 locals {
   public_key = fileexists("~/.ssh/id_rsa.pub") ? "${file("~/.ssh/id_rsa.pub")}" : var.public_key
 
-  network_domains = ["Aws", "Landing_zone", "Edge", "Azure", "Gcp", "Oci"]
-  cidrs = {
-    aws_us_east_1     = "10.1.2.0/24"
-    aws_us_east_1_dev = "10.8.2.0/24"
-    aws_us_east_2     = "10.5.2.0/24"
-    aws_us_east_2_dev = "10.9.2.0/24"
-  }
+  network_domains = ["Aws", "Aws_dev", "Landing_zone", "Edge", "Azure", "Gcp", "Oci"]
   transit_firenet = {
     ("aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}") = {
       transit_account                              = var.aws_backbone_account_name
@@ -124,23 +118,35 @@ locals {
   ]
 
   workload_ips = [
-    "10.1.2.10",
-    "10.2.2.10",
-    "10.3.2.20",
-    "10.4.2.10",
-    "10.5.2.10",
-    "10.6.2.10",
-    "10.7.2.10",
-    "10.8.2.10",
-    "10.9.2.10",
+    cidrhost(local.cidrs.aws_us_east_1, 10),
+    cidrhost(local.cidrs.azure_germany_west_central, 10),
+    cidrhost(local.cidrs.oci_singapore_1, 20),
+    cidrhost(local.cidrs.gcp_west1, 10),
+    cidrhost(local.cidrs.aws_us_east_2, 10),
+    cidrhost(local.cidrs.avx_us_east_2, 10),
+    cidrhost(local.cidrs.aws_us_east_1_landing, 10),
+    cidrhost(local.cidrs.aws_us_east_1_dev, 10),
+    cidrhost(local.cidrs.aws_us_east_2_dev, 10),
     "10.40.251.29",
     "10.50.251.29",
     "10.99.2.10"
   ]
 
+  cidrs = {
+    aws_us_east_1              = "10.1.2.0/24"
+    azure_germany_west_central = "10.2.2.0/24"
+    oci_singapore_1            = "10.3.2.0/24"
+    gcp_west1                  = "10.4.2.0/24"
+    aws_us_east_2              = "10.5.2.0/24"
+    avx_us_east_2              = "10.6.2.0/24"
+    aws_us_east_1_landing      = "10.7.2.0/24"
+    aws_us_east_1_dev          = "10.8.2.0/24"
+    aws_us_east_2_dev          = "10.9.2.0/24"
+  }
+
   traffic_gen = {
     aws_sao_paulo = {
-      private_ip = "10.5.2.10"
+      private_ip = cidrhost(local.cidrs.aws_us_east_2, 10)
       name       = "aws-sau-paulo-workload"
       apps = [
         "10.91.2.10",
@@ -152,93 +158,81 @@ locals {
         "10.97.251.29",
         "10.98.251.29"
       ]
-      sap      = []
       external = []
       interval = "15"
     }
     aws_us_east_1 = {
-      private_ip = "10.1.2.10"
-      name       = "aws-us-east-1-workload"
-      apps       = setsubtract(local.workload_ips, ["10.1.2.10"])
-      sap        = []
+      private_ip = cidrhost(local.cidrs.aws_us_east_1, 10)
+      name       = "aws-us-east-1-shared"
+      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.aws_us_east_1, 10)])
       external   = local.external
       interval   = "10"
     }
     azure = {
-      private_ip = "10.2.2.10"
+      private_ip = cidrhost(local.cidrs.azure_germany_west_central, 10)
       name       = "azure-workload"
-      apps       = setsubtract(local.workload_ips, ["10.2.2.10"])
-      sap        = []
+      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.azure_germany_west_central, 10)])
       external   = local.external
       interval   = "15"
     }
     oci = {
-      private_ip = "10.3.2.20"
+      private_ip = cidrhost(local.cidrs.oci_singapore_1, 20)
       name       = "oci-workload"
-      apps       = setsubtract(local.workload_ips, ["10.3.2.20"])
-      sap        = []
+      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.oci_singapore_1, 20)])
       external   = local.external
       interval   = "10"
     }
     gcp = {
-      private_ip = "10.4.2.10"
+      private_ip = cidrhost(local.cidrs.gcp_west1, 10)
       name       = "gcp-workload"
-      apps       = setsubtract(local.workload_ips, ["10.4.2.10"])
-      sap        = []
+      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.gcp_west1, 10)])
       external   = local.external
       interval   = "5"
     }
     aws_us_east_2 = {
-      private_ip = "10.5.2.10"
-      name       = "aws-us-east-2-workload"
-      apps       = setsubtract(local.workload_ips, ["10.5.2.10"])
-      sap        = []
+      private_ip = cidrhost(local.cidrs.aws_us_east_2, 10)
+      name       = "aws-us-east-2-shared"
+      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.aws_us_east_2, 10)])
       external   = local.external
       interval   = "5"
     }
     aws_us_east_2_avx = {
-      private_ip = "10.6.2.10"
+      private_ip = cidrhost(local.cidrs.avx_us_east_2, 10)
       name       = "avx-spoke-workload"
-      apps       = setsubtract(local.workload_ips, ["10.6.2.10"])
-      sap        = []
+      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.avx_us_east_2, 10)])
       external   = local.external
       interval   = "5"
     }
     aws_landing_zone = {
-      private_ip = "10.7.2.10"
+      private_ip = cidrhost(local.cidrs.aws_us_east_1_landing, 10)
       name       = "aws-landing-zone-workload"
-      apps       = setsubtract(local.workload_ips, ["10.7.2.10"])
-      sap        = []
+      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.aws_us_east_1_landing, 10)])
       external   = local.external
       interval   = "15"
     }
     aws_us_east_1_dev = {
-      private_ip = "10.8.2.10"
+      private_ip = cidrhost(local.cidrs.aws_us_east_1_dev, 10)
       name       = "aws-us-east-1-dev"
-      apps       = setsubtract(local.workload_ips, ["10.8.2.10"])
-      sap        = []
+      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.aws_us_east_1_dev, 10)])
       external   = local.external
       interval   = "20"
     }
     aws_us_east_2_dev = {
-      private_ip = "10.9.2.10"
+      private_ip = cidrhost(local.cidrs.aws_us_east_2_dev, 10)
       name       = "aws-us-east-2-dev"
-      apps       = setsubtract(local.workload_ips, ["10.9.2.10"])
-      sap        = []
+      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.aws_us_east_2_dev, 10)])
       external   = local.external
       interval   = "20"
     }
     edge_sv = {
       name     = "edge-sv-workload"
       apps     = setsubtract(local.workload_ips, ["10.40.251.29"])
-      sap      = []
       external = local.external
       interval = "10"
     }
     edge_dc = {
       name     = "edge-dc-workload"
       apps     = setsubtract(local.workload_ips, ["10.50.251.29"])
-      sap      = []
       external = local.external
       interval = "15"
     }

@@ -15,7 +15,7 @@ resource "aviatrix_segmentation_network_domain_association" "aws_tgw_us_east_1" 
 }
 
 resource "aviatrix_segmentation_network_domain_association" "aws_tgw_us_east_1_dev" {
-  network_domain_name = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
+  network_domain_name = aviatrix_segmentation_network_domain.demo["Aws_dev"].domain_name
   attachment_name     = aviatrix_transit_external_device_conn.tgw_us_east_1_dev.connection_name
 }
 
@@ -25,7 +25,7 @@ resource "aviatrix_segmentation_network_domain_association" "aws_tgw_us_east_2" 
 }
 
 resource "aviatrix_segmentation_network_domain_association" "aws_tgw_us_east_2_dev" {
-  network_domain_name = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
+  network_domain_name = aviatrix_segmentation_network_domain.demo["Aws_dev"].domain_name
   attachment_name     = aviatrix_transit_external_device_conn.tgw_us_east_2_dev.connection_name
 }
 

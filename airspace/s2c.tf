@@ -2,7 +2,7 @@ module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
   name                  = "aws-s2c"
-  cidr                  = "10.5.2.0/24"
+  cidr                  = local.cidrs.aws_us_east_2
   secondary_cidr_blocks = []
 
   azs             = ["sa-east-1a", "sa-east-1b"]
@@ -77,7 +77,7 @@ resource "aviatrix_site2cloud" "spoke_side" {
   pre_shared_key             = var.s2c_shared_secret
   backup_pre_shared_key      = var.s2c_shared_secret
   forward_traffic_to_transit = true
-  remote_subnet_cidr         = "10.5.2.0/24"
+  remote_subnet_cidr         = local.cidrs.aws_us_east_2
   remote_subnet_virtual      = "10.99.2.0/24"
   local_subnet_cidr          = "10.1.2.0/24,10.2.2.0/24,10.3.2.0/24,10.4.2.0/24,10.5.2.0/24,10.6.2.0/24,10.40.251.0/24,10.50.251.0/24"
   local_subnet_virtual       = "10.91.2.0/24,10.92.2.0/24,10.93.2.0/24,10.94.2.0/24,10.95.2.0/24,10.96.2.0/24,10.97.2.0/24,10.98.2.0/24"

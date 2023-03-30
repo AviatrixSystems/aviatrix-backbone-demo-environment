@@ -29,7 +29,6 @@ module "edge_sv" {
     name     = local.traffic_gen.edge_sv.name
     apps     = join(",", local.traffic_gen.edge_sv.apps)
     external = join(",", local.traffic_gen.edge_sv.external)
-    sap      = join(",", local.traffic_gen.edge_sv.sap)
     interval = local.traffic_gen.edge_sv.interval
     password = var.workload_instance_password
   })
@@ -120,7 +119,6 @@ module "edge_dc" {
     name     = local.traffic_gen.edge_dc.name
     apps     = join(",", local.traffic_gen.edge_dc.apps)
     external = join(",", local.traffic_gen.edge_dc.external)
-    sap      = join(",", local.traffic_gen.edge_dc.sap)
     interval = local.traffic_gen.edge_dc.interval
     password = var.workload_instance_password
   })

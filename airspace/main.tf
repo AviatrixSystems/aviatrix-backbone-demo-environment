@@ -11,7 +11,7 @@ module "avx_spoke" {
 
   cloud         = "aws"
   name          = "avx-${var.transit_aws_egress_fqdn_region}-spoke"
-  cidr          = "10.6.2.0/24"
+  cidr          = local.cidrs.avx_us_east_2
   region        = var.transit_aws_egress_fqdn_region
   account       = var.aws_backbone_account_name
   instance_size = "t3.micro"
@@ -72,7 +72,7 @@ module "avx_landing_zone" {
 
   cloud                            = "aws"
   name                             = "avx-${var.transit_aws_palo_firenet_region}-landing-zone"
-  cidr                             = "10.7.2.0/24"
+  cidr                             = local.cidrs.aws_us_east_1_landing
   region                           = var.transit_aws_palo_firenet_region
   account                          = var.aws_backbone_account_name
   instance_size                    = "t3.micro"

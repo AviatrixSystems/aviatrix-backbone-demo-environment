@@ -2,7 +2,7 @@
 module "vpc_us_east_1" {
   source = "terraform-aws-modules/vpc/aws"
 
-  name = "vpc-us-east-1-application"
+  name = "shared-services-us-east-1"
   cidr = local.cidrs.aws_us_east_1
 
   azs             = ["us-east-1a", "us-east-1b"]
@@ -21,7 +21,7 @@ module "vpc_us_east_1" {
 module "vpc_us_east_2" {
   source = "terraform-aws-modules/vpc/aws"
 
-  name = "vpc-us-east-1-application"
+  name = "shared-services-us-east-2"
   cidr = local.cidrs.aws_us_east_2
 
   azs             = ["us-east-2a", "us-east-2b"]
@@ -40,7 +40,7 @@ module "vpc_us_east_2" {
 module "vpc_us_east_1_dev" {
   source = "terraform-aws-modules/vpc/aws"
 
-  name = "vpc-us-east-1-development"
+  name = "development-us-east-1"
   cidr = local.cidrs.aws_us_east_1_dev
 
   azs             = ["us-east-1a", "us-east-1b"]
@@ -59,7 +59,7 @@ module "vpc_us_east_1_dev" {
 module "vpc_us_east_2_dev" {
   source = "terraform-aws-modules/vpc/aws"
 
-  name = "vpc-us-east-1-application"
+  name = "development-us-east-2"
   cidr = local.cidrs.aws_us_east_2_dev
 
   azs             = ["us-east-2a", "us-east-2b"]
@@ -90,7 +90,7 @@ resource "aws_ec2_transit_gateway" "us_east_1" {
 
 resource "aviatrix_transit_external_device_conn" "tgw_us_east_1" {
   vpc_id                      = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].vpc.vpc_id
-  connection_name             = "aws-tgw-us-east-1"
+  connection_name             = "aws-tgw-us-east-1-shared-services"
   gw_name                     = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name
   connection_type             = "bgp"
   manual_bgp_advertised_cidrs = ["10.0.0.0/8"]
@@ -342,7 +342,7 @@ resource "aws_ec2_transit_gateway" "us_east_2" {
 
 resource "aviatrix_transit_external_device_conn" "tgw_us_east_2" {
   vpc_id                      = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_egress_fqdn_region), "/[ -]/", "_")}"].vpc.vpc_id
-  connection_name             = "aws-tgw-us-east-2"
+  connection_name             = "aws-tgw-us-east-2-shared-services"
   gw_name                     = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_egress_fqdn_region), "/[ -]/", "_")}"].transit_gateway.gw_name
   connection_type             = "bgp"
   manual_bgp_advertised_cidrs = ["0.0.0.0/0"]
