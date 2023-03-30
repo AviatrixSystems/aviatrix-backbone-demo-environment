@@ -3,11 +3,11 @@ module "vpc_us_east_1" {
   source = "terraform-aws-modules/vpc/aws"
 
   name = "vpc-us-east-1-application"
-  cidr = "10.1.2.0/24"
+  cidr = local.cidrs.aws_us_east_1
 
   azs             = ["us-east-1a", "us-east-1b"]
-  private_subnets = ["10.1.2.0/28", "10.1.2.16/28"]
-  public_subnets  = ["10.1.2.32/28", "10.1.2.48/28"]
+  private_subnets = [cidrsubnet(local.cidrs.aws_us_east_1, 4, 0), cidrsubnet(local.cidrs.aws_us_east_1, 4, 1)]
+  public_subnets  = [cidrsubnet(local.cidrs.aws_us_east_1, 4, 2), cidrsubnet(local.cidrs.aws_us_east_1, 4, 3)]
 
   enable_nat_gateway = false
   enable_vpn_gateway = false
@@ -22,11 +22,11 @@ module "vpc_us_east_2" {
   source = "terraform-aws-modules/vpc/aws"
 
   name = "vpc-us-east-1-application"
-  cidr = "10.5.2.0/24"
+  cidr = local.cidrs.aws_us_east_2
 
   azs             = ["us-east-2a", "us-east-2b"]
-  private_subnets = ["10.5.2.0/28", "10.5.2.16/28"]
-  public_subnets  = ["10.5.2.32/28", "10.5.2.48/28"]
+  private_subnets = [cidrsubnet(local.cidrs.aws_us_east_2, 4, 0), cidrsubnet(local.cidrs.aws_us_east_2, 4, 1)]
+  public_subnets  = [cidrsubnet(local.cidrs.aws_us_east_2, 4, 2), cidrsubnet(local.cidrs.aws_us_east_2, 4, 3)]
 
   enable_nat_gateway = false
   enable_vpn_gateway = false
@@ -41,11 +41,11 @@ module "vpc_us_east_1_dev" {
   source = "terraform-aws-modules/vpc/aws"
 
   name = "vpc-us-east-1-development"
-  cidr = "10.8.2.0/24"
+  cidr = local.cidrs.aws_us_east_1_dev
 
   azs             = ["us-east-1a", "us-east-1b"]
-  private_subnets = ["10.8.2.0/28", "10.8.2.16/28"]
-  public_subnets  = ["10.8.2.32/28", "10.8.2.48/28"]
+  private_subnets = [cidrsubnet(local.cidrs.aws_us_east_1_dev, 4, 0), cidrsubnet(local.cidrs.aws_us_east_1_dev, 4, 1)]
+  public_subnets  = [cidrsubnet(local.cidrs.aws_us_east_1_dev, 4, 2), cidrsubnet(local.cidrs.aws_us_east_1_dev, 4, 3)]
 
   enable_nat_gateway = false
   enable_vpn_gateway = false
@@ -60,11 +60,11 @@ module "vpc_us_east_2_dev" {
   source = "terraform-aws-modules/vpc/aws"
 
   name = "vpc-us-east-1-application"
-  cidr = "10.9.2.0/24"
+  cidr = local.cidrs.aws_us_east_2_dev
 
   azs             = ["us-east-2a", "us-east-2b"]
-  private_subnets = ["10.9.2.0/28", "10.9.2.16/28"]
-  public_subnets  = ["10.9.2.32/28", "10.9.2.48/28"]
+  private_subnets = [cidrsubnet(local.cidrs.aws_us_east_2_dev, 4, 0), cidrsubnet(local.cidrs.aws_us_east_2_dev, 4, 1)]
+  public_subnets  = [cidrsubnet(local.cidrs.aws_us_east_2_dev, 4, 2), cidrsubnet(local.cidrs.aws_us_east_2_dev, 4, 3)]
 
   enable_nat_gateway = false
   enable_vpn_gateway = false
@@ -89,31 +89,49 @@ resource "aws_ec2_transit_gateway" "us_east_1" {
 }
 
 resource "aviatrix_transit_external_device_conn" "tgw_us_east_1" {
-  vpc_id             = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].vpc.vpc_id
-  connection_name    = "aws-tgw-us-east-1"
-  gw_name            = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name
-  connection_type    = "bgp"
-  bgp_local_as_num   = "65101"
-  bgp_remote_as_num  = "64512"
-  remote_gateway_ip  = "192.168.101.1"
-  tunnel_protocol    = "GRE"
-  local_tunnel_cidr  = "169.254.101.1/29"
-  remote_tunnel_cidr = "169.254.101.2/29"
-  enable_jumbo_frame = false
+  vpc_id                      = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].vpc.vpc_id
+  connection_name             = "aws-tgw-us-east-1"
+  gw_name                     = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name
+  connection_type             = "bgp"
+  manual_bgp_advertised_cidrs = ["10.0.0.0/8"]
+  bgp_local_as_num            = "65101"
+  bgp_remote_as_num           = "64512"
+  remote_gateway_ip           = "192.168.101.1"
+  tunnel_protocol             = "GRE"
+  local_tunnel_cidr           = "169.254.101.1/29"
+  remote_tunnel_cidr          = "169.254.101.2/29"
+  enable_jumbo_frame          = false
 }
 
 resource "aviatrix_transit_external_device_conn" "tgw_us_east_1_dev" {
-  vpc_id             = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].vpc.vpc_id
-  connection_name    = "aws-tgw-us-east-1-dev"
-  gw_name            = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name
-  connection_type    = "bgp"
-  bgp_local_as_num   = "65101"
-  bgp_remote_as_num  = "64512"
-  remote_gateway_ip  = "192.168.101.5"
-  tunnel_protocol    = "GRE"
-  local_tunnel_cidr  = "169.254.101.9/29"
-  remote_tunnel_cidr = "169.254.101.10/29"
-  enable_jumbo_frame = false
+  vpc_id                      = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].vpc.vpc_id
+  connection_name             = "aws-tgw-us-east-1-dev"
+  gw_name                     = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name
+  connection_type             = "bgp"
+  manual_bgp_advertised_cidrs = ["10.0.0.0/8"]
+  bgp_local_as_num            = "65101"
+  bgp_remote_as_num           = "64512"
+  remote_gateway_ip           = "192.168.101.5"
+  tunnel_protocol             = "GRE"
+  local_tunnel_cidr           = "169.254.101.9/29"
+  remote_tunnel_cidr          = "169.254.101.10/29"
+  enable_jumbo_frame          = false
+}
+
+resource "aws_ec2_transit_gateway_connect" "vpc_us_east_1" {
+  transport_attachment_id                         = aws_ec2_transit_gateway_vpc_attachment.transit_us_east_1.id
+  transit_gateway_id                              = aws_ec2_transit_gateway.us_east_1.id
+  transit_gateway_default_route_table_association = false
+  transit_gateway_default_route_table_propagation = false
+  provider                                        = aws.us-east-1
+}
+
+resource "aws_ec2_transit_gateway_connect" "vpc_us_east_1_dev" {
+  transport_attachment_id                         = aws_ec2_transit_gateway_vpc_attachment.transit_us_east_1.id
+  transit_gateway_id                              = aws_ec2_transit_gateway.us_east_1.id
+  transit_gateway_default_route_table_association = false
+  transit_gateway_default_route_table_propagation = false
+  provider                                        = aws.us-east-1
 }
 
 resource "aws_ec2_transit_gateway_connect_peer" "vpc_us_east_1_1" {
@@ -132,22 +150,6 @@ resource "aws_ec2_transit_gateway_connect_peer" "vpc_us_east_1_1_dev" {
   bgp_asn                       = "65101"
   transit_gateway_address       = "192.168.101.5"
   provider                      = aws.us-east-1
-}
-
-resource "aws_ec2_transit_gateway_connect" "vpc_us_east_1" {
-  transport_attachment_id                         = aws_ec2_transit_gateway_vpc_attachment.transit_us_east_1.id
-  transit_gateway_id                              = aws_ec2_transit_gateway.us_east_1.id
-  transit_gateway_default_route_table_association = false
-  transit_gateway_default_route_table_propagation = false
-  provider                                        = aws.us-east-1
-}
-
-resource "aws_ec2_transit_gateway_connect" "vpc_us_east_1_dev" {
-  transport_attachment_id                         = aws_ec2_transit_gateway_vpc_attachment.transit_us_east_1.id
-  transit_gateway_id                              = aws_ec2_transit_gateway.us_east_1.id
-  transit_gateway_default_route_table_association = false
-  transit_gateway_default_route_table_propagation = false
-  provider                                        = aws.us-east-1
 }
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "vpc_us_east_1" {
@@ -180,6 +182,9 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "vpc_us_east_1_dev" {
 resource "aws_ec2_transit_gateway_route_table" "us_east_1" {
   transit_gateway_id = aws_ec2_transit_gateway.us_east_1.id
   provider           = aws.us-east-1
+  tags = merge(var.common_tags, {
+    Name = "vpc-us-east-1-route-table"
+  })
 }
 
 resource "aws_ec2_transit_gateway_route_table" "us_east_1_dev" {
@@ -277,6 +282,7 @@ resource "aws_route" "vpc_us_east_1_internet" {
   transit_gateway_id     = aws_ec2_transit_gateway.us_east_1.id
   provider               = aws.us-east-1
 }
+
 resource "aws_route" "vpc_us_east_1_dev_rfc1918n_10" {
   for_each               = toset(concat(module.vpc_us_east_1_dev.public_route_table_ids, module.vpc_us_east_1_dev.private_route_table_ids))
   route_table_id         = each.value
@@ -364,6 +370,22 @@ resource "aviatrix_transit_external_device_conn" "tgw_us_east_2_dev" {
   enable_jumbo_frame          = false
 }
 
+resource "aws_ec2_transit_gateway_connect" "vpc_us_east_2" {
+  transport_attachment_id                         = aws_ec2_transit_gateway_vpc_attachment.transit_us_east_2.id
+  transit_gateway_id                              = aws_ec2_transit_gateway.us_east_2.id
+  transit_gateway_default_route_table_association = false
+  transit_gateway_default_route_table_propagation = false
+  provider                                        = aws.us-east-2
+}
+
+resource "aws_ec2_transit_gateway_connect" "vpc_us_east_2_dev" {
+  transport_attachment_id                         = aws_ec2_transit_gateway_vpc_attachment.transit_us_east_2.id
+  transit_gateway_id                              = aws_ec2_transit_gateway.us_east_2.id
+  transit_gateway_default_route_table_association = false
+  transit_gateway_default_route_table_propagation = false
+  provider                                        = aws.us-east-2
+}
+
 resource "aws_ec2_transit_gateway_connect_peer" "vpc_us_east_2_1" {
   peer_address                  = module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_egress_fqdn_region), "/[ -]/", "_")}"].transit_gateway.private_ip
   inside_cidr_blocks            = ["169.254.101.0/29"]
@@ -380,22 +402,6 @@ resource "aws_ec2_transit_gateway_connect_peer" "vpc_us_east_2_1_dev" {
   bgp_asn                       = "65105"
   transit_gateway_address       = "192.168.201.5"
   provider                      = aws.us-east-2
-}
-
-resource "aws_ec2_transit_gateway_connect" "vpc_us_east_2" {
-  transport_attachment_id                         = aws_ec2_transit_gateway_vpc_attachment.transit_us_east_2.id
-  transit_gateway_id                              = aws_ec2_transit_gateway.us_east_2.id
-  transit_gateway_default_route_table_association = false
-  transit_gateway_default_route_table_propagation = false
-  provider                                        = aws.us-east-2
-}
-
-resource "aws_ec2_transit_gateway_connect" "vpc_us_east_2_dev" {
-  transport_attachment_id                         = aws_ec2_transit_gateway_vpc_attachment.transit_us_east_2.id
-  transit_gateway_id                              = aws_ec2_transit_gateway.us_east_2.id
-  transit_gateway_default_route_table_association = false
-  transit_gateway_default_route_table_propagation = false
-  provider                                        = aws.us-east-2
 }
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "vpc_us_east_2" {
@@ -428,6 +434,9 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "vpc_us_east_2_dev" {
 resource "aws_ec2_transit_gateway_route_table" "us_east_2" {
   transit_gateway_id = aws_ec2_transit_gateway.us_east_2.id
   provider           = aws.us-east-2
+  tags = merge(var.common_tags, {
+    Name = "vpc-us-east-2-route-table"
+  })
 }
 
 resource "aws_ec2_transit_gateway_route_table" "us_east_2_dev" {

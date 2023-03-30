@@ -2,7 +2,12 @@ locals {
   public_key = fileexists("~/.ssh/id_rsa.pub") ? "${file("~/.ssh/id_rsa.pub")}" : var.public_key
 
   network_domains = ["Aws", "Landing_zone", "Edge", "Azure", "Gcp", "Oci"]
-
+  cidrs = {
+    aws_us_east_1     = "10.1.2.0/24"
+    aws_us_east_1_dev = "10.8.2.0/24"
+    aws_us_east_2     = "10.5.2.0/24"
+    aws_us_east_2_dev = "10.9.2.0/24"
+  }
   transit_firenet = {
     ("aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}") = {
       transit_account                              = var.aws_backbone_account_name

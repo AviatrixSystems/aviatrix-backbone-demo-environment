@@ -20,7 +20,19 @@ resource "aviatrix_smart_group" "aws" {
   name = "Aws"
   selector {
     match_expressions {
+      cidr = "10.1.2.0/24"
+    }
+    match_expressions {
+      cidr = "10.5.2.0/24"
+    }
+    match_expressions {
       cidr = "10.6.2.0/24"
+    }
+    match_expressions {
+      cidr = "10.8.2.0/24"
+    }
+    match_expressions {
+      cidr = "10.9.2.0/24"
     }
   }
 }
