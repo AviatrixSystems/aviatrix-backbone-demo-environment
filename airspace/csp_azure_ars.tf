@@ -25,7 +25,7 @@ module "vnet_germany_west_central" {
   use_for_each        = true
   address_space       = [local.cidrs.azure_germany_west_central]
   subnet_names        = ["private-subnet1", "public-subnet1"]
-  subnet_prefixes     = ["10.2.2.0/28", "10.2.2.32/28"]
+  subnet_prefixes     = [cidrsubnet(local.cidrs.azure_germany_west_central, 4, 0), cidrsubnet(local.cidrs.azure_germany_west_central, 4, 2)]
   route_tables_ids = {
     private-subnet1 = azurerm_route_table.vnet_germany_west_central_private.id,
     public-subnet1  = azurerm_route_table.vnet_germany_west_central_public.id,

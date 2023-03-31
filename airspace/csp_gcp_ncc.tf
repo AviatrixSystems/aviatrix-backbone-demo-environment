@@ -6,7 +6,7 @@ resource "google_compute_network" "vpc" {
 
 resource "google_compute_subnetwork" "vpc" {
   name          = "vpc-us-west1-application-sub1"
-  ip_cidr_range = "10.4.2.0/28"
+  ip_cidr_range = cidrsubnet(local.cidrs.gcp_west1, 4, 0)
   region        = var.transit_gcp_region
   network       = google_compute_network.vpc.id
 }
@@ -146,10 +146,10 @@ resource "google_compute_router_peer" "hub_transit" {
   router_appliance_instance = data.google_compute_instance.transit.self_link
   advertise_mode            = "CUSTOM"
   advertised_ip_ranges {
-    range = "10.4.2.0/28"
+    range = cidrsubnet(local.cidrs.gcp_west1, 4, 0)
   }
   advertised_ip_ranges {
-    range = "10.4.2.16/28"
+    range = cidrsubnet(local.cidrs.gcp_west1, 4, 1)
   }
   depends_on = [google_network_connectivity_spoke.transit]
   lifecycle {
@@ -170,10 +170,10 @@ resource "google_compute_router_peer" "hub_transit_redundant" {
   router_appliance_instance = data.google_compute_instance.transit.self_link
   advertise_mode            = "CUSTOM"
   advertised_ip_ranges {
-    range = "10.4.2.0/28"
+    range = cidrsubnet(local.cidrs.gcp_west1, 4, 0)
   }
   advertised_ip_ranges {
-    range = "10.4.2.16/28"
+    range = cidrsubnet(local.cidrs.gcp_west1, 4, 1)
   }
   depends_on = [google_network_connectivity_spoke.transit]
   lifecycle {

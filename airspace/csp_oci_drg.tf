@@ -6,7 +6,7 @@ resource "oci_core_vcn" "spoke" {
 }
 
 resource "oci_core_subnet" "spoke_public" {
-  cidr_block        = "10.3.2.0/28"
+  cidr_block        = cidrsubnet(local.cidrs.oci_singapore_1, 4, 0)
   compartment_id    = var.oci_backbone_compartment_ocid
   vcn_id            = oci_core_vcn.spoke.id
   display_name      = "spoke-public"
@@ -14,7 +14,7 @@ resource "oci_core_subnet" "spoke_public" {
 }
 
 resource "oci_core_subnet" "spoke_private" {
-  cidr_block        = "10.3.2.16/28"
+  cidr_block        = cidrsubnet(local.cidrs.oci_singapore_1, 4, 1)
   compartment_id    = var.oci_backbone_compartment_ocid
   vcn_id            = oci_core_vcn.spoke.id
   display_name      = "spoke-private"

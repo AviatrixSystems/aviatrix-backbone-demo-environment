@@ -6,8 +6,8 @@ module "vpc" {
   secondary_cidr_blocks = []
 
   azs             = ["sa-east-1a", "sa-east-1b"]
-  private_subnets = ["10.5.2.0/28", "10.5.2.16/28"]
-  public_subnets  = ["10.5.2.32/28", "10.5.2.48/28"]
+  private_subnets = [cidrsubnet(local.cidrs.aws_us_east_2, 4, 0), cidrsubnet(local.cidrs.aws_us_east_2, 4, 1)]
+  public_subnets  = [cidrsubnet(local.cidrs.aws_us_east_2, 4, 2), cidrsubnet(local.cidrs.aws_us_east_2, 4, 3)]
 
   enable_nat_gateway = false
   enable_vpn_gateway = false
