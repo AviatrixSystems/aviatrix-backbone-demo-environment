@@ -1,3 +1,13 @@
+data "aws_ami" "fs_packer_eu_west_1" {
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["avxfs-v2-ami-*"]
+  }
+  owners   = ["240152784131"] # Aviatrix - pod1
+  provider = aws.eu-west-1
+}
+
 data "aws_ami" "fs_packer_us_east_1" {
   most_recent = true
   filter {

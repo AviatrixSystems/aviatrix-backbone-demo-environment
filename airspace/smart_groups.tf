@@ -43,6 +43,24 @@ resource "aviatrix_smart_group" "aws_dev" {
   }
 }
 
+resource "aviatrix_smart_group" "aws_qa" {
+  name = "Aws_qa"
+  selector {
+    match_expressions {
+      cidr = local.cidrs.aws_eu_west_1_qa
+    }
+  }
+}
+
+resource "aviatrix_smart_group" "aws_prod" {
+  name = "Aws_prod"
+  selector {
+    match_expressions {
+      cidr = local.cidrs.aws_eu_west_1_prod
+    }
+  }
+}
+
 resource "aviatrix_smart_group" "landing_zone" {
   name = "Landing_Zone"
   selector {

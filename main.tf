@@ -20,6 +20,7 @@ module "backbone" {
   s2c_shared_secret               = var.s2c_shared_secret
   transit_aws_egress_fqdn_region  = var.transit_aws_egress_fqdn_region
   transit_aws_palo_firenet_region = var.transit_aws_palo_firenet_region
+  transit_aws_tgwo_region         = var.transit_aws_tgwo_region
   transit_azure_region            = var.transit_azure_region
   transit_gcp_region              = var.transit_gcp_region
   transit_oci_region              = var.transit_oci_region
@@ -29,6 +30,7 @@ module "backbone" {
     aws.sa-east-1         = aws.sa-east-1
     aws.us-east-1         = aws.us-east-1
     aws.us-east-2         = aws.us-east-2
+    aws.eu-west-1         = aws.eu-west-1
     azurerm.shared-images = azurerm.shared-images
   }
 }

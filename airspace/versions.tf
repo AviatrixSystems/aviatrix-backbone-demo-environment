@@ -5,14 +5,14 @@ terraform {
       version = "~> 3.0.0"
     }
     azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.43.0"
+      source                = "hashicorp/azurerm"
+      version               = "~> 3.43.0"
       configuration_aliases = [azurerm.shared-images]
     }
     aws = {
       source                = "hashicorp/aws"
       version               = "~> 4.54.0"
-      configuration_aliases = [aws.sa-east-1, aws.us-east-1, aws.us-east-2]
+      configuration_aliases = [aws.sa-east-1, aws.us-east-1, aws.us-east-2, aws.eu-west-1]
     }
     google = {
       source  = "hashicorp/google"

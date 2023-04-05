@@ -195,6 +195,62 @@ module "aws_us_east_2_avx_workload" {
   }
 }
 
+module "aws_eu_west_1_qa" {
+  source               = "./mc-instance"
+  name                 = local.traffic_gen.aws_eu_west_1_qa.name
+  private_ip           = local.traffic_gen.aws_eu_west_1_qa.private_ip
+  vpc_id               = module.vpc_eu_west_1_qa.vpc_id
+  subnet_id            = module.vpc_eu_west_1_qa.private_subnets[0]
+  cloud                = "aws"
+  iam_instance_profile = aws_iam_instance_profile.accounting_ec2_role_for_ssm.name
+  public_key           = fileexists("~/.ssh/id_rsa.pub") ? "${file("~/.ssh/id_rsa.pub")}" : null
+  common_tags = merge(var.common_tags, {
+    Environment = "QA"
+  })
+  password = var.workload_instance_password
+  image    = data.aws_ami.fs_packer_eu_west_1.id
+
+  user_data_templatefile = templatefile("${var.workload_template_path}/traffic_gen.tpl",
+    {
+      name     = local.traffic_gen.aws_eu_west_1_qa.name
+      apps     = join(",", local.traffic_gen.aws_eu_west_1_qa.apps)
+      external = join(",", local.traffic_gen.aws_eu_west_1_qa.external)
+      interval = local.traffic_gen.aws_eu_west_1_qa.interval
+      password = var.workload_instance_password
+  })
+  providers = {
+    aws = aws.eu-west-1
+  }
+}
+
+module "aws_eu_west_1_prod" {
+  source               = "./mc-instance"
+  name                 = local.traffic_gen.aws_eu_west_1_prod.name
+  private_ip           = local.traffic_gen.aws_eu_west_1_prod.private_ip
+  vpc_id               = module.vpc_eu_west_1_prod.vpc_id
+  subnet_id            = module.vpc_eu_west_1_prod.private_subnets[0]
+  cloud                = "aws"
+  iam_instance_profile = aws_iam_instance_profile.accounting_ec2_role_for_ssm.name
+  public_key           = fileexists("~/.ssh/id_rsa.pub") ? "${file("~/.ssh/id_rsa.pub")}" : null
+  common_tags = merge(var.common_tags, {
+    Environment = "Production"
+  })
+  password = var.workload_instance_password
+  image    = data.aws_ami.fs_packer_eu_west_1.id
+
+  user_data_templatefile = templatefile("${var.workload_template_path}/traffic_gen.tpl",
+    {
+      name     = local.traffic_gen.aws_eu_west_1_prod.name
+      apps     = join(",", local.traffic_gen.aws_eu_west_1_prod.apps)
+      external = join(",", local.traffic_gen.aws_eu_west_1_prod.external)
+      interval = local.traffic_gen.aws_eu_west_1_prod.interval
+      password = var.workload_instance_password
+  })
+  providers = {
+    aws = aws.eu-west-1
+  }
+}
+
 # azure
 module "azure_workload" {
   source         = "./mc-instance"

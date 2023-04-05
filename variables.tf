@@ -108,6 +108,11 @@ variable "transit_aws_egress_fqdn_region" {
   default     = "us-east-2"
 }
 
+variable "transit_aws_tgwo_region" {
+  description = "Aws transit region with avx tgw orchestration"
+  default     = "eu-west-1"
+}
+
 variable "transit_azure_region" {
   description = "Azure transit region"
   default     = "Germany West Central"

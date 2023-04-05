@@ -29,6 +29,16 @@ resource "aviatrix_segmentation_network_domain_association" "aws_tgw_us_east_2_d
   attachment_name     = aviatrix_transit_external_device_conn.tgw_us_east_2_dev.connection_name
 }
 
+resource "aviatrix_segmentation_network_domain_association" "aws_tgw_eu_west_1_qa" {
+  network_domain_name = aviatrix_segmentation_network_domain.demo["Aws_qa"].domain_name
+  attachment_name     = "${aviatrix_aws_tgw.eu_west_1.tgw_name}:${aviatrix_aws_tgw_network_domain.aws_eu_west_1_qa_domain.name}"
+}
+
+resource "aviatrix_segmentation_network_domain_association" "aws_tgw_eu_west_1_prod" {
+  network_domain_name = aviatrix_segmentation_network_domain.demo["Aws_prod"].domain_name
+  attachment_name     = "${aviatrix_aws_tgw.eu_west_1.tgw_name}:${aviatrix_aws_tgw_network_domain.aws_eu_west_1_prod_domain.name}"
+}
+
 resource "aviatrix_segmentation_network_domain_association" "landing_zone" {
   network_domain_name = aviatrix_segmentation_network_domain.demo["Landing_zone"].domain_name
   attachment_name     = module.avx_landing_zone.spoke_gateway.gw_name
@@ -104,4 +114,24 @@ resource "aviatrix_segmentation_network_domain_connection_policy" "azure_edge" {
 resource "aviatrix_segmentation_network_domain_connection_policy" "aws_landing_zone" {
   domain_name_1 = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
   domain_name_2 = aviatrix_segmentation_network_domain.demo["Landing_zone"].domain_name
+}
+
+resource "aviatrix_segmentation_network_domain_connection_policy" "aws_eu_west_1_qa" {
+  domain_name_1 = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Aws_qa"].domain_name
+}
+
+resource "aviatrix_segmentation_network_domain_connection_policy" "aws_eu_west_1_prod" {
+  domain_name_1 = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Aws_prod"].domain_name
+}
+
+resource "aviatrix_segmentation_network_domain_connection_policy" "edge_eu_west_1_qa" {
+  domain_name_1 = aviatrix_segmentation_network_domain.demo["Edge"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Aws_qa"].domain_name
+}
+
+resource "aviatrix_segmentation_network_domain_connection_policy" "edge_eu_west_1_prod" {
+  domain_name_1 = aviatrix_segmentation_network_domain.demo["Edge"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Aws_prod"].domain_name
 }

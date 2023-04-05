@@ -28,6 +28,12 @@ provider "aws" {
 }
 
 provider "aws" {
+  alias   = "eu-west-1"
+  profile = "demo_backbone"
+  region  = "eu-west-1"
+}
+
+provider "aws" {
   alias   = "dns"
   profile = "demo_operations"
 }

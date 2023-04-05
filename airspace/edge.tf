@@ -50,6 +50,7 @@ module "edge_sv" {
   ]
   vm_ssh_key = local.public_key
   transit_gateways = [
+    module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_tgwo_region), "/[ -]/", "_")}"].transit_gateway.gw_name,
     module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name,
     module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_egress_fqdn_region), "/[ -]/", "_")}"].transit_gateway.gw_name,
     module.multicloud_transit.transit["azure_${replace(lower(var.transit_azure_region), "/[ -]/", "_")}"].transit_gateway.gw_name,
@@ -140,6 +141,7 @@ module "edge_dc" {
   ]
   vm_ssh_key = local.public_key
   transit_gateways = [
+    module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_tgwo_region), "/[ -]/", "_")}"].transit_gateway.gw_name,
     module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}"].transit_gateway.gw_name,
     module.multicloud_transit.transit["aws_${replace(lower(var.transit_aws_egress_fqdn_region), "/[ -]/", "_")}"].transit_gateway.gw_name,
     module.multicloud_transit.transit["azure_${replace(lower(var.transit_azure_region), "/[ -]/", "_")}"].transit_gateway.gw_name,

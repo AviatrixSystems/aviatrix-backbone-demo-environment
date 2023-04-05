@@ -1,7 +1,7 @@
 locals {
   public_key = fileexists("~/.ssh/id_rsa.pub") ? "${file("~/.ssh/id_rsa.pub")}" : var.public_key
 
-  network_domains = ["Aws", "Aws_dev", "Landing_zone", "Edge", "Azure", "Gcp", "Oci"]
+  network_domains = ["Aws", "Aws_dev", "Aws_qa", "Aws_prod", "Landing_zone", "Edge", "Azure", "Gcp", "Oci"]
   transit_firenet = {
     ("aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}") = {
       transit_account                              = var.aws_backbone_account_name
@@ -75,6 +75,18 @@ locals {
       firenet_single_ip_snat    = true
       transit_hybrid_connection = true
     },
+    ("aws_${replace(lower(var.transit_aws_tgwo_region), "/[ -]/", "_")}") = {
+      transit_account           = var.aws_backbone_account_name
+      transit_name              = "backbone-aws-${var.transit_aws_tgwo_region}"
+      transit_cloud             = "aws"
+      transit_cidr              = "10.10.0.0/23"
+      transit_region_name       = var.transit_aws_tgwo_region
+      transit_asn               = 65110
+      transit_instance_size     = "t3.small"
+      transit_ha_gw             = false
+      transit_hybrid_connection = true
+      firenet                   = false
+    },
   }
 
   egress_rules = {
@@ -127,6 +139,8 @@ locals {
     cidrhost(local.cidrs.aws_us_east_1_landing, 10),
     cidrhost(local.cidrs.aws_us_east_1_dev, 10),
     cidrhost(local.cidrs.aws_us_east_2_dev, 10),
+    cidrhost(local.cidrs.aws_eu_west_1_qa, 10),
+    cidrhost(local.cidrs.aws_eu_west_1_prod, 10),
     "10.40.251.29",
     "10.50.251.29",
     "10.99.2.10"
@@ -142,6 +156,8 @@ locals {
     aws_us_east_1_landing      = "10.7.2.0/24"
     aws_us_east_1_dev          = "10.8.2.0/24"
     aws_us_east_2_dev          = "10.9.2.0/24"
+    aws_eu_west_1_qa           = "10.10.2.0/24"
+    aws_eu_west_1_prod         = "10.11.2.0/24"
   }
 
   traffic_gen = {
@@ -224,6 +240,20 @@ locals {
       external   = local.external
       interval   = "20"
     }
+    aws_eu_west_1_qa = {
+      private_ip = cidrhost(local.cidrs.aws_eu_west_1_qa, 10)
+      name       = "aws-eu-west-1-qa"
+      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.aws_eu_west_1_qa, 10)])
+      external   = local.external
+      interval   = "10"
+    }
+    aws_eu_west_1_prod = {
+      private_ip = cidrhost(local.cidrs.aws_eu_west_1_prod, 10)
+      name       = "aws-eu-west-1-prod"
+      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.aws_eu_west_1_prod, 10)])
+      external   = local.external
+      interval   = "5"
+    }
     edge_sv = {
       name     = "edge-sv-workload"
       apps     = setsubtract(local.workload_ips, ["10.40.251.29"])
@@ -299,6 +329,11 @@ variable "transit_aws_palo_firenet_region" {
 variable "transit_aws_egress_fqdn_region" {
   description = "Aws transit region with avx egress fqdn"
   default     = "us-east-2"
+}
+
+variable "transit_aws_tgwo_region" {
+  description = "Aws transit region with avx tgw orchestration"
+  default     = "eu-west-1"
 }
 
 variable "transit_azure_region" {
