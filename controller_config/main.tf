@@ -159,6 +159,7 @@ resource "aviatrix_saml_endpoint" "aviatrix_vpn_sso" {
   endpoint_name                = "aviatrix_vpn_sso"
   idp_metadata_type            = "URL"
   idp_metadata_url             = var.vpn_idp_metadata_url
+  custom_entity_id             = var.vpn_custom_entity_id
   controller_login             = false
   custom_saml_request_template = templatefile("${path.module}/saml_request.tpl", {})
   lifecycle {

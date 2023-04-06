@@ -90,3 +90,7 @@ variable "idp_metadata_url" {
 variable "vpn_idp_metadata_url" {
   description = "Aviatrix vpn sso idp metadata url"
 }
+
+variable "vpn_custom_entity_id" {
+  description = "Aviatrix vpn sso custom entity id"
+}
