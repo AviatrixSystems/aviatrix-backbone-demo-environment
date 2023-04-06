@@ -82,6 +82,18 @@ resource "aws_subnet" "controller_subnet_b" {
   }
 }
 
+data "aws_route_table" "controller" {
+  filter {
+    name   = "tag:Name"
+    values = ["controller_rt"]
+  }
+}
+
+resource "aws_route_table_association" "controller_subnet_b" {
+  subnet_id      = aws_subnet.controller_subnet_b.id
+  route_table_id = data.aws_route_table.controller.id
+}
+
 resource "aws_lb" "public" {
   name               = "aviatrix-public-alb"
   internal           = false
