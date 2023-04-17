@@ -30,12 +30,12 @@ resource "aviatrix_segmentation_network_domain_association" "aws_tgw_us_east_2_d
 }
 
 resource "aviatrix_segmentation_network_domain_association" "aws_tgw_eu_west_1_qa" {
-  network_domain_name = aviatrix_segmentation_network_domain.demo["Aws_qa"].domain_name
+  network_domain_name = aviatrix_segmentation_network_domain.demo["Aws_qa_tgwo"].domain_name
   attachment_name     = "${aviatrix_aws_tgw.eu_west_1.tgw_name}:${aviatrix_aws_tgw_network_domain.aws_eu_west_1_qa_domain.name}"
 }
 
 resource "aviatrix_segmentation_network_domain_association" "aws_tgw_eu_west_1_prod" {
-  network_domain_name = aviatrix_segmentation_network_domain.demo["Aws_prod"].domain_name
+  network_domain_name = aviatrix_segmentation_network_domain.demo["Aws_prod_tgwo"].domain_name
   attachment_name     = "${aviatrix_aws_tgw.eu_west_1.tgw_name}:${aviatrix_aws_tgw_network_domain.aws_eu_west_1_prod_domain.name}"
 }
 
@@ -118,20 +118,20 @@ resource "aviatrix_segmentation_network_domain_connection_policy" "aws_landing_z
 
 resource "aviatrix_segmentation_network_domain_connection_policy" "aws_eu_west_1_qa" {
   domain_name_1 = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
-  domain_name_2 = aviatrix_segmentation_network_domain.demo["Aws_qa"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Aws_qa_tgwo"].domain_name
 }
 
 resource "aviatrix_segmentation_network_domain_connection_policy" "aws_eu_west_1_prod" {
   domain_name_1 = aviatrix_segmentation_network_domain.demo["Aws"].domain_name
-  domain_name_2 = aviatrix_segmentation_network_domain.demo["Aws_prod"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Aws_prod_tgwo"].domain_name
 }
 
 resource "aviatrix_segmentation_network_domain_connection_policy" "edge_eu_west_1_qa" {
   domain_name_1 = aviatrix_segmentation_network_domain.demo["Edge"].domain_name
-  domain_name_2 = aviatrix_segmentation_network_domain.demo["Aws_qa"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Aws_qa_tgwo"].domain_name
 }
 
 resource "aviatrix_segmentation_network_domain_connection_policy" "edge_eu_west_1_prod" {
   domain_name_1 = aviatrix_segmentation_network_domain.demo["Edge"].domain_name
-  domain_name_2 = aviatrix_segmentation_network_domain.demo["Aws_prod"].domain_name
+  domain_name_2 = aviatrix_segmentation_network_domain.demo["Aws_prod_tgwo"].domain_name
 }

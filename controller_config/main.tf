@@ -11,8 +11,8 @@ data "terraform_remote_state" "controller" {
 # Copilot service account
 resource "aviatrix_account_user" "copilot_svc" {
   username = "copilot_svc"
-  email    = var.account_email
-  password = var.cplt_svc_password
+  email    = local.tfvars.account_email
+  password = local.tfvars.cplt_svc_password
 }
 
 resource "aviatrix_rbac_group" "all_write" {
@@ -76,8 +76,8 @@ resource "aviatrix_rbac_group_permission_attachment" "ops" {
 
 resource "aviatrix_account_user" "network" {
   username = "network-user"
-  email    = var.account_email
-  password = var.ctrl_password
+  email    = local.tfvars.account_email
+  password = local.tfvars.ctrl_password
 }
 
 resource "aviatrix_rbac_group_user_attachment" "network" {
@@ -87,8 +87,8 @@ resource "aviatrix_rbac_group_user_attachment" "network" {
 
 resource "aviatrix_account_user" "ops" {
   username = "operations-user"
-  email    = var.account_email
-  password = var.ctrl_password
+  email    = local.tfvars.account_email
+  password = local.tfvars.ctrl_password
 }
 
 resource "aviatrix_rbac_group_user_attachment" "ops" {
@@ -98,8 +98,8 @@ resource "aviatrix_rbac_group_user_attachment" "ops" {
 
 resource "aviatrix_account_user" "security" {
   username = "security-user"
-  email    = var.account_email
-  password = var.ctrl_password
+  email    = local.tfvars.account_email
+  password = local.tfvars.ctrl_password
 }
 
 resource "aviatrix_rbac_group_user_attachment" "security" {
@@ -109,8 +109,8 @@ resource "aviatrix_rbac_group_user_attachment" "security" {
 
 resource "aviatrix_account_user" "read_only" {
   username = "read-only-user"
-  email    = var.account_email
-  password = var.ctrl_password
+  email    = local.tfvars.account_email
+  password = local.tfvars.ctrl_password
 }
 
 resource "aviatrix_rbac_group_user_attachment" "read_only" {
@@ -143,7 +143,7 @@ resource "aviatrix_copilot_association" "copilot" {
 resource "aviatrix_saml_endpoint" "aviatrix_saml_sso" {
   endpoint_name                = "aviatrix_saml_sso"
   idp_metadata_type            = "URL"
-  idp_metadata_url             = var.idp_metadata_url
+  idp_metadata_url             = local.tfvars.idp_metadata_url
   controller_login             = true
   access_set_by                = "profile_attribute"
   custom_saml_request_template = templatefile("${path.module}/saml_request.tpl", {})
@@ -158,8 +158,8 @@ resource "aviatrix_saml_endpoint" "aviatrix_saml_sso" {
 resource "aviatrix_saml_endpoint" "aviatrix_vpn_sso" {
   endpoint_name                = "aviatrix_vpn_sso"
   idp_metadata_type            = "URL"
-  idp_metadata_url             = var.vpn_idp_metadata_url
-  custom_entity_id             = var.vpn_custom_entity_id
+  idp_metadata_url             = local.tfvars.vpn_idp_metadata_url
+  custom_entity_id             = local.tfvars.vpn_custom_entity_id
   controller_login             = false
   custom_saml_request_template = templatefile("${path.module}/saml_request.tpl", {})
   lifecycle {
@@ -172,7 +172,7 @@ resource "aviatrix_saml_endpoint" "aviatrix_vpn_sso" {
 # Controller label is not exposed in terraform
 data "http" "ctrl_auth" {
   provider             = http-full
-  url                  = "https://${var.ctrl_fqdn}/v2/api"
+  url                  = "https://${local.tfvars.ctrl_fqdn}/v2/api"
   method               = "POST"
   insecure_skip_verify = false
   request_headers = {
@@ -180,14 +180,14 @@ data "http" "ctrl_auth" {
   }
   request_body = jsonencode({
     username = "admin",
-    password = var.ctrl_password,
+    password = local.tfvars.ctrl_password,
     action   = "login"
   })
 }
 
 data "http" "ctrl_label" {
   provider             = http-full
-  url                  = "https://${var.ctrl_fqdn}/v1/api"
+  url                  = "https://${local.tfvars.ctrl_fqdn}/v1/api"
   method               = "POST"
   insecure_skip_verify = false
   request_headers = {
@@ -197,29 +197,29 @@ data "http" "ctrl_label" {
 }
 
 resource "aviatrix_account" "backbone_azure" {
-  account_name        = var.azure_backbone_account_name
+  account_name        = local.tfvars.azure_backbone_account_name
   cloud_type          = 8
-  arm_subscription_id = var.azure_backbone_subscription_id
-  arm_directory_id    = var.azure_directory_id
-  arm_application_id  = var.azure_application_id
-  arm_application_key = var.azure_application_key
+  arm_subscription_id = local.tfvars.azure_backbone_subscription_id
+  arm_directory_id    = local.tfvars.azure_directory_id
+  arm_application_id  = local.tfvars.azure_application_id
+  arm_application_key = local.tfvars.azure_application_key
 }
 
 resource "aviatrix_account" "backbone_gcp" {
-  account_name                        = var.gcp_backbone_account_name
+  account_name                        = local.tfvars.gcp_backbone_account_name
   cloud_type                          = 4
-  gcloud_project_id                   = var.gcp_backbone_project_id
-  gcloud_project_credentials_filepath = var.gcp_credentials_filepath
+  gcloud_project_id                   = local.tfvars.gcp_backbone_project_id
+  gcloud_project_credentials_filepath = local.tfvars.gcp_credentials_filepath
 }
 
 
 resource "aviatrix_account" "backbone_oci" {
-  account_name                 = var.oci_backbone_account_name
+  account_name                 = local.tfvars.oci_backbone_account_name
   cloud_type                   = 16
-  oci_tenancy_id               = var.oci_tenant_ocid
-  oci_user_id                  = var.oci_user_ocid
-  oci_compartment_id           = var.oci_backbone_compartment_ocid
-  oci_api_private_key_filepath = var.oci_key_filepath
+  oci_tenancy_id               = local.tfvars.oci_tenant_ocid
+  oci_user_id                  = local.tfvars.oci_user_ocid
+  oci_compartment_id           = local.tfvars.oci_backbone_compartment_ocid
+  oci_api_private_key_filepath = local.tfvars.oci_key_filepath
 }
 
 resource "aviatrix_distributed_firewalling_config" "demo" {

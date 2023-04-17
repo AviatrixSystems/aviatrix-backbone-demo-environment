@@ -44,7 +44,7 @@ resource "aviatrix_smart_group" "aws_dev" {
 }
 
 resource "aviatrix_smart_group" "aws_qa" {
-  name = "Aws_qa"
+  name = "Aws_qa_tgwo"
   selector {
     match_expressions {
       cidr = local.cidrs.aws_eu_west_1_qa
@@ -53,7 +53,7 @@ resource "aviatrix_smart_group" "aws_qa" {
 }
 
 resource "aviatrix_smart_group" "aws_prod" {
-  name = "Aws_prod"
+  name = "Aws_prod_tgwo"
   selector {
     match_expressions {
       cidr = local.cidrs.aws_eu_west_1_prod

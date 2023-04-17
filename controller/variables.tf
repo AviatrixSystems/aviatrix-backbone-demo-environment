@@ -1,26 +1,11 @@
-variable "ctrl_password" {
-  description = "Aviatrix controller admim password"
+data "aws_secretsmanager_secret_version" "tfvars" {
+  secret_id = "demo/backbone/tfvars"
 }
 
-variable "ctrl_customer_id" {
-  description = "Aviatrix controller customer id"
-}
-
-variable "account_email" {
-  description = "Email address to associate with the controller users - admin and copilot service account"
-}
-
-variable "ctrl_version" {
-  description = "Aviatrix controller version"
-}
-
-variable "public_key" {
-  description = "SSH key to apply to all deployed instances"
-}
-
-variable "aws_account_name" {
-  description = "Access Account Name for the AWS Account where the controller and copilot are deployed"
-  default     = "aws-operations"
+locals {
+  tfvars = jsondecode(
+    data.aws_secretsmanager_secret_version.tfvars.secret_string
+  )
 }
 
 variable "aws_region" {
@@ -44,13 +29,4 @@ variable "vpc_cidr" {
 
 variable "subnet_cidr" {
   default = "172.64.1.0/24"
-}
-
-variable "common_tags" {
-  description = "Optional tags to be applied to all resources"
-  default     = {}
-}
-
-locals {
-  public_key = fileexists("~/.ssh/id_rsa.pub") ? "${file("~/.ssh/id_rsa.pub")}" : var.public_key
 }

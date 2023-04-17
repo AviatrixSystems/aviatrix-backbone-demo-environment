@@ -6,19 +6,19 @@ data "http" "myip" {
 
 resource "aws_key_pair" "avx_ctrl_key" {
   key_name   = "avx-ctrl-key"
-  public_key = local.public_key
+  public_key = local.tfvars.public_key
 }
 
 module "aviatrix_controller_aws" {
   source                      = "AviatrixSystems/aws-controller/aviatrix"
   version                     = "1.0.3"
-  access_account_email        = var.account_email
-  access_account_name         = var.aws_account_name
-  admin_email                 = var.account_email
-  admin_password              = var.ctrl_password
+  access_account_email        = local.tfvars.account_email
+  access_account_name         = local.tfvars.aws_account_name
+  admin_email                 = local.tfvars.account_email
+  admin_password              = local.tfvars.ctrl_password
   aws_account_id              = data.aws_caller_identity.aws_account.account_id
-  controller_version          = var.ctrl_version
-  customer_license_id         = var.ctrl_customer_id
+  controller_version          = local.tfvars.ctrl_version
+  customer_license_id         = local.tfvars.ctrl_customer_id
   use_existing_keypair        = true
   key_pair_name               = aws_key_pair.avx_ctrl_key.key_name
   termination_protection      = true
@@ -28,7 +28,7 @@ module "aviatrix_controller_aws" {
   controller_launch_wait_time = "210"
   vpc_cidr                    = var.vpc_cidr
   subnet_cidr                 = var.subnet_cidr
-  controller_tags             = var.common_tags
+  controller_tags             = local.tfvars.common_tags
 }
 
 resource "aws_ebs_volume" "copilot" {
@@ -48,7 +48,7 @@ module "aviatrix_copilot_aws" {
   use_existing_vpc      = true
   vpc_id                = module.aviatrix_controller_aws.vpc_id
   subnet_id             = module.aviatrix_controller_aws.subnet_id
-  tags                  = var.common_tags
+  tags                  = local.tfvars.common_tags
 
   allowed_cidrs = {}
   additional_volumes = {

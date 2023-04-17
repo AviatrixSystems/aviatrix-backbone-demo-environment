@@ -37,7 +37,7 @@ resource "aws_security_group" "public_alb" {
   description = "Allow http inbound traffic"
   vpc_id      = module.aviatrix_controller_aws.vpc_id
 
-  tags = merge(var.common_tags, {
+  tags = merge(local.tfvars.common_tags, {
     Name = "aviatrix-public"
   })
 }
@@ -104,7 +104,7 @@ resource "aws_lb" "public" {
 
   enable_deletion_protection = false
 
-  tags = merge(var.common_tags, {
+  tags = merge(local.tfvars.common_tags, {
     Name = "aviatrix-public"
   })
 
@@ -195,7 +195,7 @@ resource "aws_alb_target_group" "ctrl" {
     matcher  = "200"
   }
 
-  tags = merge(var.common_tags, {
+  tags = merge(local.tfvars.common_tags, {
     Name = "aviatrix-controller"
   })
 }
@@ -212,7 +212,7 @@ resource "aws_alb_target_group" "cplt" {
     matcher  = "200"
   }
 
-  tags = merge(var.common_tags, {
+  tags = merge(local.tfvars.common_tags, {
     Name = "aviatrix-copilot"
   })
 }
