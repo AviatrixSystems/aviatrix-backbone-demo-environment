@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aviatrix = {
       source  = "aviatrixsystems/aviatrix"
-      version = "~> 3.0.0"
+      version = "~> 3.1.0"
     }
     azurerm = {
       source                = "hashicorp/azurerm"
@@ -11,7 +11,7 @@ terraform {
     }
     aws = {
       source                = "hashicorp/aws"
-      version               = "~> 4.54.0"
+      version               = "~> 5.0.0"
       configuration_aliases = [aws.sa-east-1, aws.us-east-1, aws.us-east-2, aws.eu-west-1]
     }
     google = {

@@ -1,80 +1,80 @@
 # azure vnets
-resource "azurerm_resource_group" "vnet_germany_west_central" {
-  name     = "vnet-germany-west-central-rg"
+resource "azurerm_resource_group" "vnet_north_europe" {
+  name     = "vnet-north-europe-rg"
   location = var.transit_azure_region
 }
 
-resource "azurerm_route_table" "vnet_germany_west_central_public" {
+resource "azurerm_route_table" "vnet_north_europe_public" {
   location            = var.transit_azure_region
-  name                = "vnet-germany-west-central-public-rt"
-  resource_group_name = azurerm_resource_group.vnet_germany_west_central.name
+  name                = "vnet-north-europe-public-rt"
+  resource_group_name = azurerm_resource_group.vnet_north_europe.name
 }
 
-resource "azurerm_route_table" "vnet_germany_west_central_private" {
+resource "azurerm_route_table" "vnet_north_europe_private" {
   location            = var.transit_azure_region
-  name                = "vnet-germany-west-central-private-rt"
-  resource_group_name = azurerm_resource_group.vnet_germany_west_central.name
+  name                = "vnet-north-europe-private-rt"
+  resource_group_name = azurerm_resource_group.vnet_north_europe.name
 }
 
-module "vnet_germany_west_central" {
+module "vnet_north_europe" {
   source              = "Azure/vnet/azurerm"
   version             = "4.0.0"
-  vnet_name           = "vnet-germany-west-central"
-  resource_group_name = azurerm_resource_group.vnet_germany_west_central.name
-  vnet_location       = azurerm_resource_group.vnet_germany_west_central.location
+  vnet_name           = "vnet-north-europe"
+  resource_group_name = azurerm_resource_group.vnet_north_europe.name
+  vnet_location       = azurerm_resource_group.vnet_north_europe.location
   use_for_each        = true
-  address_space       = [local.cidrs.azure_germany_west_central]
+  address_space       = [local.cidrs.azure_north_europe]
   subnet_names        = ["private-subnet1", "public-subnet1"]
-  subnet_prefixes     = [cidrsubnet(local.cidrs.azure_germany_west_central, 4, 0), cidrsubnet(local.cidrs.azure_germany_west_central, 4, 2)]
+  subnet_prefixes     = [cidrsubnet(local.cidrs.azure_north_europe, 4, 0), cidrsubnet(local.cidrs.azure_north_europe, 4, 2)]
   route_tables_ids = {
-    private-subnet1 = azurerm_route_table.vnet_germany_west_central_private.id,
-    public-subnet1  = azurerm_route_table.vnet_germany_west_central_public.id,
+    private-subnet1 = azurerm_route_table.vnet_north_europe_private.id,
+    public-subnet1  = azurerm_route_table.vnet_north_europe_public.id,
   }
   tags = var.common_tags
 }
 
-data "azurerm_virtual_network" "vnet_germany_west_central" {
-  name                = module.vnet_germany_west_central.vnet_name
-  resource_group_name = azurerm_resource_group.vnet_germany_west_central.name
+data "azurerm_virtual_network" "vnet_north_europe" {
+  name                = module.vnet_north_europe.vnet_name
+  resource_group_name = azurerm_resource_group.vnet_north_europe.name
   depends_on = [
-    module.vnet_germany_west_central
+    module.vnet_north_europe
   ]
 }
 
 resource "azurerm_virtual_network" "ars" {
   name                = "ars-vnet"
   address_space       = ["10.2.4.0/24"]
-  resource_group_name = azurerm_resource_group.vnet_germany_west_central.name
-  location            = azurerm_resource_group.vnet_germany_west_central.location
+  resource_group_name = azurerm_resource_group.vnet_north_europe.name
+  location            = azurerm_resource_group.vnet_north_europe.location
 }
 
 # azure route server
 resource "azurerm_subnet" "ars" {
   name                 = "RouteServerSubnet"
   virtual_network_name = azurerm_virtual_network.ars.name
-  resource_group_name  = azurerm_resource_group.vnet_germany_west_central.name
+  resource_group_name  = azurerm_resource_group.vnet_north_europe.name
   address_prefixes     = ["10.2.4.0/27"]
 }
 
 resource "azurerm_subnet" "nva" {
   name                 = "NvaSubnet"
   virtual_network_name = azurerm_virtual_network.ars.name
-  resource_group_name  = azurerm_resource_group.vnet_germany_west_central.name
+  resource_group_name  = azurerm_resource_group.vnet_north_europe.name
   address_prefixes     = ["10.2.4.32/28"]
 }
 
 resource "azurerm_public_ip" "ars" {
   name                = "ars-pip"
-  resource_group_name = azurerm_resource_group.vnet_germany_west_central.name
-  location            = azurerm_resource_group.vnet_germany_west_central.location
+  resource_group_name = azurerm_resource_group.vnet_north_europe.name
+  location            = azurerm_resource_group.vnet_north_europe.location
   allocation_method   = "Static"
   sku                 = "Standard"
 }
 
 resource "azurerm_route_server" "default" {
   name                             = "backbone-route-server"
-  resource_group_name              = azurerm_resource_group.vnet_germany_west_central.name
-  location                         = azurerm_resource_group.vnet_germany_west_central.location
+  resource_group_name              = azurerm_resource_group.vnet_north_europe.name
+  location                         = azurerm_resource_group.vnet_north_europe.location
   sku                              = "Standard"
   public_ip_address_id             = azurerm_public_ip.ars.id
   subnet_id                        = azurerm_subnet.ars.id
@@ -93,7 +93,7 @@ data "azurerm_subscription" "current" {}
 resource "azurerm_virtual_network_peering" "ars_transit" {
   name                         = "ars-transit"
   remote_virtual_network_id    = module.multicloud_transit.transit["azure_${replace(lower(var.transit_azure_region), "/[ -]/", "_")}"].vpc.azure_vnet_resource_id
-  resource_group_name          = azurerm_resource_group.vnet_germany_west_central.name
+  resource_group_name          = azurerm_resource_group.vnet_north_europe.name
   virtual_network_name         = azurerm_virtual_network.ars.name
   allow_forwarded_traffic      = true
   allow_virtual_network_access = true
@@ -122,8 +122,8 @@ resource "azurerm_virtual_network_peering" "transit_ars" {
 resource "azurerm_virtual_network_peering" "spoke_ars" {
   name                         = "spoke-ars"
   remote_virtual_network_id    = azurerm_virtual_network.ars.id
-  resource_group_name          = azurerm_resource_group.vnet_germany_west_central.name
-  virtual_network_name         = module.vnet_germany_west_central.vnet_name
+  resource_group_name          = azurerm_resource_group.vnet_north_europe.name
+  virtual_network_name         = module.vnet_north_europe.vnet_name
   allow_forwarded_traffic      = true
   allow_virtual_network_access = true
   use_remote_gateways          = true
@@ -136,8 +136,8 @@ resource "azurerm_virtual_network_peering" "spoke_ars" {
 
 resource "azurerm_virtual_network_peering" "ars_spoke" {
   name                         = "ars-spoke"
-  remote_virtual_network_id    = module.vnet_germany_west_central.vnet_id
-  resource_group_name          = azurerm_resource_group.vnet_germany_west_central.name
+  remote_virtual_network_id    = module.vnet_north_europe.vnet_id
+  resource_group_name          = azurerm_resource_group.vnet_north_europe.name
   virtual_network_name         = azurerm_virtual_network.ars.name
   allow_forwarded_traffic      = true
   allow_virtual_network_access = true
@@ -154,7 +154,7 @@ resource "aviatrix_transit_external_device_conn" "default" {
   gw_name                   = module.multicloud_transit.transit["azure_${replace(lower(var.transit_azure_region), "/[ -]/", "_")}"].transit_gateway.gw_name
   connection_type           = "bgp"
   tunnel_protocol           = "LAN"
-  remote_vpc_name           = format("%s:%s:%s", azurerm_virtual_network.ars.name, azurerm_resource_group.vnet_germany_west_central.name, data.azurerm_subscription.current.subscription_id)
+  remote_vpc_name           = format("%s:%s:%s", azurerm_virtual_network.ars.name, azurerm_resource_group.vnet_north_europe.name, data.azurerm_subscription.current.subscription_id)
   ha_enabled                = false
   bgp_local_as_num          = "65102"
   bgp_remote_as_num         = "65515"
@@ -166,7 +166,7 @@ resource "aviatrix_transit_external_device_conn" "default" {
 resource "azurerm_network_interface" "nva" {
   name                 = "nva"
   location             = var.transit_azure_region
-  resource_group_name  = azurerm_resource_group.vnet_germany_west_central.name
+  resource_group_name  = azurerm_resource_group.vnet_north_europe.name
   enable_ip_forwarding = true
   ip_configuration {
     name                          = "nva"
@@ -182,14 +182,14 @@ resource "azurerm_public_ip" "nva" {
   allocation_method   = "Static"
   location            = var.transit_azure_region
   name                = "nva-pip"
-  resource_group_name = azurerm_resource_group.vnet_germany_west_central.name
+  resource_group_name = azurerm_resource_group.vnet_north_europe.name
   sku                 = "Standard"
 }
 
 resource "azurerm_route" "workload_nva" {
   name                   = "workload_nva"
-  resource_group_name    = azurerm_resource_group.vnet_germany_west_central.name
-  route_table_name       = azurerm_route_table.vnet_germany_west_central_private.name
+  resource_group_name    = azurerm_resource_group.vnet_north_europe.name
+  route_table_name       = azurerm_route_table.vnet_north_europe_private.name
   address_prefix         = "0.0.0.0/0"
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = azurerm_network_interface.nva.private_ip_address
@@ -198,7 +198,7 @@ resource "azurerm_route" "workload_nva" {
 resource "azurerm_linux_virtual_machine" "nva" {
   name                            = "nva"
   location                        = var.transit_azure_region
-  resource_group_name             = azurerm_resource_group.vnet_germany_west_central.name
+  resource_group_name             = azurerm_resource_group.vnet_north_europe.name
   network_interface_ids           = [azurerm_network_interface.nva.id]
   admin_username                  = "nva_user"
   admin_password                  = var.workload_instance_password
@@ -233,7 +233,7 @@ data "cloudinit_config" "nva" {
       {
         asn_quagga      = "65516"
         bgp_routerId    = azurerm_network_interface.nva.ip_configuration[0].private_ip_address
-        bgp_network1    = local.cidrs.azure_germany_west_central
+        bgp_network1    = local.cidrs.azure_north_europe
         routeserver_IP1 = tolist(azurerm_route_server.default.virtual_router_ips)[0]
         routeserver_IP2 = tolist(azurerm_route_server.default.virtual_router_ips)[1]
     })
@@ -242,7 +242,7 @@ data "cloudinit_config" "nva" {
 
 resource "azurerm_network_security_group" "nva" {
   name                = "nva"
-  resource_group_name = azurerm_resource_group.vnet_germany_west_central.name
+  resource_group_name = azurerm_resource_group.vnet_north_europe.name
   location            = var.transit_azure_region
   tags                = var.common_tags
 }
@@ -262,7 +262,7 @@ resource "azurerm_network_security_rule" "nva_rfc_1918" {
   source_address_prefixes     = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
   destination_port_range      = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.vnet_germany_west_central.name
+  resource_group_name         = azurerm_resource_group.vnet_north_europe.name
   network_security_group_name = azurerm_network_security_group.nva.name
 }
 
@@ -276,7 +276,7 @@ resource "azurerm_network_security_rule" "nva_ssh" {
   source_address_prefix       = "${chomp(data.http.myip.response_body)}/32"
   destination_port_range      = "22"
   destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.vnet_germany_west_central.name
+  resource_group_name         = azurerm_resource_group.vnet_north_europe.name
   network_security_group_name = azurerm_network_security_group.nva.name
 }
 
@@ -290,7 +290,7 @@ resource "azurerm_network_security_rule" "nva_forward" {
   source_address_prefixes     = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
   destination_port_range      = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.vnet_germany_west_central.name
+  resource_group_name         = azurerm_resource_group.vnet_north_europe.name
   network_security_group_name = azurerm_network_security_group.nva.name
 }
 
@@ -305,7 +305,7 @@ resource "azurerm_route_server_bgp_connection" "nva" {
 resource "azurerm_storage_account" "flow_logs" {
   name                = "nvaflowsa"
   resource_group_name = "NetworkWatcherRG"
-  location            = azurerm_resource_group.vnet_germany_west_central.location
+  location            = azurerm_resource_group.vnet_north_europe.location
 
   account_tier              = "Standard"
   account_kind              = "StorageV2"
@@ -315,13 +315,13 @@ resource "azurerm_storage_account" "flow_logs" {
 
 resource "azurerm_log_analytics_workspace" "flow_logs" {
   name                = "nva-law"
-  location            = azurerm_resource_group.vnet_germany_west_central.location
+  location            = azurerm_resource_group.vnet_north_europe.location
   resource_group_name = "NetworkWatcherRG"
   sku                 = "PerGB2018"
 }
 
 resource "azurerm_network_watcher_flow_log" "flow_logs" {
-  network_watcher_name = "NetworkWatcher_germanywestcentral"
+  network_watcher_name = "NetworkWatcher_northeurope"
   resource_group_name  = "NetworkWatcherRG"
   name                 = "nva-flow-log"
 

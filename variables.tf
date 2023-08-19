@@ -25,7 +25,7 @@ variable "transit_aws_tgwo_region" {
 
 variable "transit_azure_region" {
   description = "Azure transit region"
-  default     = "Germany West Central"
+  default     = "North Europe"
 }
 
 variable "transit_gcp_region" {

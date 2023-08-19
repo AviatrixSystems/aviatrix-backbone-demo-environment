@@ -9,7 +9,7 @@ terraform {
   required_providers {
     aviatrix = {
       source  = "aviatrixsystems/aviatrix"
-      version = "~> 3.0.0"
+      version = "~> 3.1.1"
     }
     http-full = {
       source  = "salrashid123/http-full"

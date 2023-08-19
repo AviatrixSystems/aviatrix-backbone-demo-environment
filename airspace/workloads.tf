@@ -258,8 +258,8 @@ module "azure_workload" {
   name           = local.traffic_gen.azure.name
   private_ip     = local.traffic_gen.azure.private_ip
   image          = data.azurerm_shared_image.fs_packer.id
-  subnet_id      = module.vnet_germany_west_central.vnet_subnets[0]
-  resource_group = azurerm_resource_group.vnet_germany_west_central.name
+  subnet_id      = module.vnet_north_europe.vnet_subnets[0]
+  resource_group = azurerm_resource_group.vnet_north_europe.name
   location       = var.transit_azure_region
   password       = var.workload_instance_password
   common_tags    = merge(var.common_tags, {})

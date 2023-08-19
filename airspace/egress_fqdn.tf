@@ -7,7 +7,7 @@ resource "aviatrix_fqdn" "allow_egress" {
     gw_name = module.multicloud_transit.firenet["aws_${replace(lower(var.transit_aws_egress_fqdn_region), "/[ -]/", "_")}"].aviatrix_firewall_instance[0].gw_name
   }
   depends_on = [
-    data.aviatrix_firenet_vendor_integration.palo
+    # data.aviatrix_firenet_vendor_integration.palo
   ]
 }
 

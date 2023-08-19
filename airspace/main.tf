@@ -1,13 +1,22 @@
 # https://registry.terraform.io/modules/terraform-aviatrix-modules/backbone/aviatrix/latest
 module "multicloud_transit" {
-  source          = "terraform-aviatrix-modules/backbone/aviatrix"
-  version         = "v1.1.2"
+  source  = "terraform-aviatrix-modules/backbone/aviatrix"
+  version = "v1.2.2"
+  global_settings = {
+    transit_accounts = {
+      aws   = var.aws_backbone_account_name,
+      azure = var.azure_backbone_account_name,
+      gcp   = var.gcp_backbone_account_name,
+      oci   = var.oci_backbone_account_name,
+    }
+    transit_ha_gw = false
+  }
   transit_firenet = local.transit_firenet
 }
 
 module "avx_spoke" {
   source  = "terraform-aviatrix-modules/mc-spoke/aviatrix"
-  version = "1.5.0"
+  version = "1.6.3"
 
   cloud         = "aws"
   name          = "avx-${var.transit_aws_egress_fqdn_region}-spoke"
@@ -68,7 +77,7 @@ resource "aviatrix_gateway" "accounting_psf_dev" {
 
 module "avx_landing_zone" {
   source  = "terraform-aviatrix-modules/mc-spoke/aviatrix"
-  version = "1.5.0"
+  version = "1.6.3"
 
   cloud                            = "aws"
   name                             = "avx-${var.transit_aws_palo_firenet_region}-landing-zone"

@@ -4,14 +4,12 @@ locals {
   network_domains = ["Aws", "Aws_dev", "Aws_qa_tgwo", "Aws_prod_tgwo", "Landing_zone", "Edge", "Azure", "Gcp", "Oci"]
   transit_firenet = {
     ("aws_${replace(lower(var.transit_aws_palo_firenet_region), "/[ -]/", "_")}") = {
-      transit_account                              = var.aws_backbone_account_name
       transit_name                                 = "backbone-aws-${var.transit_aws_palo_firenet_region}"
       transit_cloud                                = "aws"
       transit_cidr                                 = "10.1.0.0/23"
       transit_region_name                          = var.transit_aws_palo_firenet_region
       transit_asn                                  = 65101
       transit_instance_size                        = "c5.xlarge"
-      transit_ha_gw                                = false
       firenet                                      = true
       transit_hybrid_connection                    = true
       firenet_firewall_image                       = "Palo Alto Networks VM-Series Next-Generation Firewall (BYOL)"
@@ -22,37 +20,31 @@ locals {
       firenet_egress_enabled                       = true
     },
     ("azure_${replace(lower(var.transit_azure_region), "/[ -]/", "_")}") = {
-      transit_account                  = var.azure_backbone_account_name
       transit_name                     = "backbone-azure-${replace(lower(var.transit_azure_region), "/[ ]/", "-")}"
       transit_cloud                    = "azure"
       transit_cidr                     = "10.2.0.0/23"
       transit_region_name              = var.transit_azure_region
       transit_asn                      = 65102
       transit_instance_size            = "Standard_B1ms"
-      transit_ha_gw                    = false
       transit_enable_bgp_over_lan      = true
       transit_bgp_lan_interfaces_count = 1
     },
     ("oci_${replace(lower(var.transit_oci_region), "/[ -]/", "_")}") = {
-      transit_account       = var.oci_backbone_account_name
       transit_name          = "backbone-oci-${var.transit_oci_region}"
       transit_cloud         = "oci"
       transit_cidr          = "10.3.0.0/23"
       transit_region_name   = var.transit_oci_region
       transit_asn           = 65103
       transit_instance_size = "VM.Standard2.2"
-      transit_ha_gw         = false
       transit_bgp_ecmp      = true
     },
     ("gcp_${replace(lower(var.transit_gcp_region), "/[ -]/", "_")}") = {
-      transit_account             = var.gcp_backbone_account_name
       transit_name                = "backbone-gcp-${var.transit_gcp_region}"
       transit_cloud               = "gcp"
       transit_cidr                = "10.4.0.0/23"
       transit_region_name         = var.transit_gcp_region
       transit_asn                 = 65104
       transit_instance_size       = "n1-standard-1"
-      transit_ha_gw               = false
       transit_enable_bgp_over_lan = true
       transit_bgp_lan_interfaces = [
         {
@@ -62,28 +54,24 @@ locals {
       ]
     },
     ("aws_${replace(lower(var.transit_aws_egress_fqdn_region), "/[ -]/", "_")}") = {
-      transit_account           = var.aws_backbone_account_name
       transit_name              = "backbone-aws-${var.transit_aws_egress_fqdn_region}"
       transit_cloud             = "aws"
       transit_cidr              = "10.5.0.0/23"
       transit_region_name       = var.transit_aws_egress_fqdn_region
       transit_asn               = 65105
       transit_instance_size     = "c5.xlarge"
-      transit_ha_gw             = false
       firenet                   = true
       firenet_firewall_image    = "Aviatrix FQDN Egress Filtering"
       firenet_single_ip_snat    = true
       transit_hybrid_connection = true
     },
     ("aws_${replace(lower(var.transit_aws_tgwo_region), "/[ -]/", "_")}") = {
-      transit_account           = var.aws_backbone_account_name
       transit_name              = "backbone-aws-${var.transit_aws_tgwo_region}"
       transit_cloud             = "aws"
       transit_cidr              = "10.10.0.0/23"
       transit_region_name       = var.transit_aws_tgwo_region
       transit_asn               = 65110
       transit_instance_size     = "t3.small"
-      transit_ha_gw             = false
       transit_hybrid_connection = true
       firenet                   = false
     },
@@ -131,7 +119,7 @@ locals {
 
   workload_ips = [
     cidrhost(local.cidrs.aws_us_east_1, 10),
-    cidrhost(local.cidrs.azure_germany_west_central, 10),
+    cidrhost(local.cidrs.azure_north_europe, 10),
     cidrhost(local.cidrs.oci_singapore_1, 20),
     cidrhost(local.cidrs.gcp_west1, 10),
     cidrhost(local.cidrs.aws_us_east_2, 10),
@@ -147,17 +135,17 @@ locals {
   ]
 
   cidrs = {
-    aws_us_east_1              = "10.1.2.0/24"
-    azure_germany_west_central = "10.2.2.0/24"
-    oci_singapore_1            = "10.3.2.0/24"
-    gcp_west1                  = "10.4.2.0/24"
-    aws_us_east_2              = "10.5.2.0/24"
-    avx_us_east_2              = "10.6.2.0/24"
-    aws_us_east_1_landing      = "10.7.2.0/24"
-    aws_us_east_1_dev          = "10.8.2.0/24"
-    aws_us_east_2_dev          = "10.9.2.0/24"
-    aws_eu_west_1_qa           = "10.10.2.0/24"
-    aws_eu_west_1_prod         = "10.11.2.0/24"
+    aws_us_east_1         = "10.1.2.0/24"
+    azure_north_europe    = "10.2.2.0/24"
+    oci_singapore_1       = "10.3.2.0/24"
+    gcp_west1             = "10.4.2.0/24"
+    aws_us_east_2         = "10.5.2.0/24"
+    avx_us_east_2         = "10.6.2.0/24"
+    aws_us_east_1_landing = "10.7.2.0/24"
+    aws_us_east_1_dev     = "10.8.2.0/24"
+    aws_us_east_2_dev     = "10.9.2.0/24"
+    aws_eu_west_1_qa      = "10.10.2.0/24"
+    aws_eu_west_1_prod    = "10.11.2.0/24"
   }
 
   traffic_gen = {
@@ -185,9 +173,9 @@ locals {
       interval   = "10"
     }
     azure = {
-      private_ip = cidrhost(local.cidrs.azure_germany_west_central, 10)
+      private_ip = cidrhost(local.cidrs.azure_north_europe, 10)
       name       = "azure-workload"
-      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.azure_germany_west_central, 10)])
+      apps       = setsubtract(local.workload_ips, [cidrhost(local.cidrs.azure_north_europe, 10)])
       external   = local.external
       interval   = "15"
     }
@@ -338,7 +326,7 @@ variable "transit_aws_tgwo_region" {
 
 variable "transit_azure_region" {
   description = "Azure transit region"
-  default     = "Germany West Central"
+  default     = "North Europe"
 }
 
 variable "transit_gcp_region" {
