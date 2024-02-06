@@ -233,7 +233,8 @@ data "cloudinit_config" "nva" {
       {
         asn_quagga      = "65516"
         bgp_routerId    = azurerm_network_interface.nva.ip_configuration[0].private_ip_address
-        bgp_network1    = local.cidrs.azure_north_europe
+        bgp_network1    = module.vnet_north_europe.vnet_address_space[0] #local.cidrs.azure_north_europe
+        bgp_network2    = azurerm_virtual_network.ars.address_space[0]
         routeserver_IP1 = tolist(azurerm_route_server.default.virtual_router_ips)[0]
         routeserver_IP2 = tolist(azurerm_route_server.default.virtual_router_ips)[1]
     })

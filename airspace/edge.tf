@@ -13,8 +13,8 @@ data "http" "myip" {
 }
 
 module "edge_sv" {
-  # source              = "github.com/MatthewKazmar/avxedgedemo?ref=7a0f882"
-  source              = "github.com/jb-smoker/avxedgedemo"
+  source              = "terraform-aviatrix-modules/gcp-edge-demo/aviatrix"
+  version             = "3.1.1"
   admin_cidr          = ["${chomp(data.http.myip.response_body)}/32"]
   region              = var.edge_sv_gcp_region
   pov_prefix          = "sv-metro-equinix"
@@ -24,7 +24,7 @@ module "edge_sv" {
   host_vm_count       = 1
   edge_vm_asn         = 64581
   edge_lan_cidr       = "10.40.251.0/29"
-  edge_image_filename = "${path.module}/avx-edge-gateway-kvm-2022-09-23-6.8.qcow2"
+  edge_image_filename = "${path.module}/avx-edge-kvm-7.1-2023-04-24.qcow2"
   test_vm_metadata_startup_script = templatefile("${var.workload_template_path}/traffic_gen.tpl", {
     name     = local.traffic_gen.edge_sv.name
     apps     = join(",", local.traffic_gen.edge_sv.apps)
@@ -104,8 +104,8 @@ resource "aws_security_group_rule" "edge_sv_copilot_5000" {
 }
 
 module "edge_dc" {
-  # source              = "github.com/MatthewKazmar/avxedgedemo?ref=7a0f882"
-  source              = "github.com/jb-smoker/avxedgedemo"
+  source              = "terraform-aviatrix-modules/gcp-edge-demo/aviatrix"
+  version             = "3.1.1"
   admin_cidr          = ["${chomp(data.http.myip.response_body)}/32"]
   region              = var.edge_dc_gcp_region
   pov_prefix          = "dc-metro-equinix"
@@ -115,7 +115,7 @@ module "edge_dc" {
   host_vm_count       = 1
   edge_vm_asn         = 64582
   edge_lan_cidr       = "10.50.251.0/29"
-  edge_image_filename = "${path.module}/avx-edge-gateway-kvm-2022-09-23-6.8.qcow2"
+  edge_image_filename = "${path.module}/avx-edge-kvm-7.1-2023-04-24.qcow2"
   test_vm_metadata_startup_script = templatefile("${var.workload_template_path}/traffic_gen.tpl", {
     name     = local.traffic_gen.edge_dc.name
     apps     = join(",", local.traffic_gen.edge_dc.apps)
